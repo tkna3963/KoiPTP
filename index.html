@@ -53,7 +53,7 @@
                 el.style.border = '1px solid #aaa';
                 el.style.borderRadius = '8px';
                 el.style.padding = '6px 10px';
-                el.style.fontSize = '14px';
+                el.style.fontSize = '18px';
                 el.style.fontFamily = '"Segoe UI", sans-serif';
                 el.style.color = '#333';
                 el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
@@ -61,7 +61,6 @@
             };
             TimeDisplay.addTo(MapSet);
             const TextAreaControl = L.control({ position: 'topleft' });
-
             TextAreaControl.onAdd = function () {
                 const container = L.DomUtil.create('div', 'textarea-container');
                 container.style.display = 'flex';
@@ -108,7 +107,6 @@
         document.addEventListener("DOMContentLoaded", async () => {
             await MapInit();
             document.getElementById('KoisiText').textContent="古明地こいし:こんにちは!\n"
-            
             MapDisplay();
             P2PWebsocket();
         });

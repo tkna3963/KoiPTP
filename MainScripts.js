@@ -66,7 +66,9 @@ function ConvertToTelop(json) {
     const message = koishiMessages[json.code];
     if (message) {
         document.getElementById('KoisiText').textContent += message;
-        document.getElementById('KoisiText').scrollTop = koisiText.scrollHeight
+        const koisiText = document.getElementById('KoisiText');
+        koisiText.scrollTop = koisiText.scrollHeight;
+
     }
 
     if (json.code == 551) {

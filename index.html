@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOIPTP</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="Styles.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="MainScripts.js" defer></script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="LeafletMap"></div>
+        <div id="rightContainer">
+            <img id="BackImg" src="Items/Img/baclgroundimg.jpg" alt="背景">
+            <img id="KoisiImg" src="Items/Koisis/koisiwara.png" alt="こいし">
+            <textarea id="KoisiText" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        let MapSet;
+        let PrefArea;
+        let SaibunArea;
+        let TsunamiArea;
+        let PrefGeoJSON;
+        let SaibunGeoJSON;
+        let TsunamiGeoJSON;
+
+        async function MapInit() {
+            MapSet = L.map('LeafletMap', { zoomControl: false, attributionControl: false }).setView([35.681236, 139.767125], 5);
+            L.tileLayer('Items/Img/MapImage.png').addTo(MapSet);
+
+            PrefArea = await fetch("Items/AreaData/Pref.geojson").then(res => res.json());
+            SaibunArea = await fetch("Items/AreaData/Saibun.geojson").then(res => res.json());
+            TsunamiArea = await fetch("Items/AreaData/Tsunami.geojson").then(res => res.json());
+
+            PrefGeoJSON = L.geoJSON(PrefArea, { style: { color: "green", fillOpacity: 0.0 } }).addTo(MapSet);
+            SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
+            TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
+        }
+
+        function MapDisplay() {
+            const TimeDisplay = L.control({ position: 'bottomright' });
+            TimeDisplay.onAdd = function () {
+                let el = L.DomUtil.create('span', 'time-display');
+                el.id = 'time-display';
+                el.innerHTML = '現在時刻: --:--:--';
+                el.style.background = 'rgba(255, 255, 255, 0.9)';
+                el.style.border = '1px solid #aaa';
+                el.style.borderRadius = '8px';
+                el.style.padding = '6px 10px';
+                el.style.fontSize = '14px';
+                el.style.fontFamily = '"Segoe UI", sans-serif';
+                el.style.color = '#333';
+                el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+                return el;
+            };
+            TimeDisplay.addTo(MapSet);
+            const TextAreaControl = L.control({ position: 'topleft' });
+
+            TextAreaControl.onAdd = function () {
+                const container = L.DomUtil.create('div', 'textarea-container');
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+                container.style.alignItems = 'flex-start';
+                container.style.background = 'rgba(255, 255, 255, 0.2)';
+                container.style.padding = '6px';
+                container.style.borderRadius = '8px';
+                container.style.border = '1px solid #aaa';
+                container.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+                const select = L.DomUtil.create('select', 'textarea-toggle', container);
+                const optionShow = L.DomUtil.create('option', '', select);
+                optionShow.value = 'show';
+                optionShow.text = '表示';
+                const optionHide = L.DomUtil.create('option', '', select);
+                optionHide.value = 'hide';
+                optionHide.text = '非表示';
+                select.style.marginBottom = '6px';
+                const textarea = L.DomUtil.create('textarea', 'custom-textarea', container);
+                textarea.id = 'custom-textarea';
+                textarea.style.width = Math.floor(window.innerWidth * 0.15) + 'px';
+                textarea.style.height = Math.floor(window.innerHeight * 0.4) + 'px';
+                textarea.style.background = 'rgba(200, 200, 200, 0.1)';
+                textarea.style.border = '1px solid #aaa';
+                textarea.style.borderRadius = '8px';
+                textarea.style.padding = '6px';
+                textarea.style.fontSize = '14px';
+                textarea.style.fontFamily = '"Segoe UI", sans-serif';
+                textarea.style.color = '#333';
+                textarea.style.resize = 'none';
+                textarea.readOnly = true;
+                select.addEventListener('change', () => {
+                    textarea.style.display = select.value === 'show' ? 'block' : 'none';
+                });
+                window.addEventListener('resize', () => {
+                    textarea.style.width = Math.floor(window.innerWidth * 0.15) + 'px';
+                    textarea.style.height = Math.floor(window.innerHeight * 0.4) + 'px';
+                });
+                return container;
+            };
+            TextAreaControl.addTo(MapSet);
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await MapInit();
+            document.getElementById('KoisiText').textContent="古明地こいし:こんにちは!\n"
+            
+            MapDisplay();
+            P2PWebsocket();
+        });
+    </script>
+
+</body>
+
+</html>

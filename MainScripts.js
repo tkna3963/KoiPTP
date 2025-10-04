@@ -2,10 +2,10 @@ function TimeCahnge() {
     let now = new Date();
     let timeStr = now.toLocaleTimeString('ja-JP');
     if (P2PSatus) {
-        document.getElementById('time-display').innerHTML = '現在時刻: ' + timeStr + "(P2P接続中)";
+        document.getElementById('time-display').innerHTML = '現在時刻: ' + timeStr + "(サーバー接続中)";
         document.getElementById('time-display').style.color = "green";
     } else {
-        document.getElementById('time-display').innerHTML = '現在時刻: ' + timeStr + "(P2P未接続)";
+        document.getElementById('time-display').innerHTML = '現在時刻: ' + timeStr + "(サーバー未接続)";
         document.getElementById('time-display').style.color = "red";
     }
 }
@@ -30,7 +30,15 @@ function P2PWebsocket() {
 
     P2Psocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
+        P2PList.push(data);
         let telop = ConvertToTelop(data);
+        const dataSelect = document.getElementById('data-select');
+        if (dataSelect) {
+            const option = document.createElement('option');
+            option.value = P2PList.length - 1;
+            option.text = `#${P2PList.length} ${data.time}受信  ${data.code}情報`;
+            dataSelect.appendChild(option);
+        }
         if (telop) {
             let textarea = document.getElementById('custom-textarea');
             textarea.value = telop + "\n\n" + textarea.value;
@@ -49,7 +57,6 @@ function P2PWebsocket() {
         }, reconnectInterval);
     };
 }
-
 
 function ConvertToTelop(json) {
     const koishiMessages = {

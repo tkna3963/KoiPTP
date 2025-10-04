@@ -71,14 +71,23 @@
                 container.style.borderRadius = '8px';
                 container.style.border = '1px solid #aaa';
                 container.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
-                const select = L.DomUtil.create('select', 'textarea-toggle', container);
+                const topRow = L.DomUtil.create('div', 'top-row', container);
+                topRow.style.display = 'flex';
+                topRow.style.gap = '6px';
+                topRow.style.marginBottom = '6px';
+                const select = L.DomUtil.create('select', 'textarea-toggle', topRow);
                 const optionShow = L.DomUtil.create('option', '', select);
                 optionShow.value = 'show';
                 optionShow.text = '表示';
                 const optionHide = L.DomUtil.create('option', '', select);
                 optionHide.value = 'hide';
                 optionHide.text = '非表示';
-                select.style.marginBottom = '6px';
+                const dataSelect = L.DomUtil.create('select', 'data-select', topRow);
+                dataSelect.id = 'data-select';
+                const defaultOption = L.DomUtil.create('option', '', dataSelect);
+                defaultOption.value = '';
+                defaultOption.text = '受信リスト';
+                dataSelect.style.flex = '1';
                 const textarea = L.DomUtil.create('textarea', 'custom-textarea', container);
                 textarea.id = 'custom-textarea';
                 textarea.style.width = Math.floor(window.innerWidth * 0.15) + 'px';
@@ -95,6 +104,12 @@
                 select.addEventListener('change', () => {
                     textarea.style.display = select.value === 'show' ? 'block' : 'none';
                 });
+                dataSelect.addEventListener('change', () => {
+                    const index = dataSelect.value;
+                    if (index !== '') {
+                        textarea.value = JSON.stringify(P2PList[index], null, 2);
+                    }
+                });
                 window.addEventListener('resize', () => {
                     textarea.style.width = Math.floor(window.innerWidth * 0.15) + 'px';
                     textarea.style.height = Math.floor(window.innerHeight * 0.4) + 'px';
@@ -106,7 +121,7 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             await MapInit();
-            document.getElementById('KoisiText').textContent="古明地こいし:こんにちは!\n"
+            document.getElementById('KoisiText').textContent = "古明地こいし:こんにちは!\n"
             MapDisplay();
             P2PWebsocket();
         });

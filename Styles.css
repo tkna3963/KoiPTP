@@ -4,7 +4,9 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    overflow: hidden
 }
+
 #container {
     display: flex;
     height: 100vh;
@@ -14,6 +16,7 @@ body {
 #LeafletMap {
     flex: 7;
 }
+
 #rightContainer {
     position: relative;
     flex: 3;

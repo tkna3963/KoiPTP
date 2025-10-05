@@ -29,6 +29,9 @@
         let PrefGeoJSON;
         let SaibunGeoJSON;
         let TsunamiGeoJSON;
+        let EpspAreaData = null;
+        const areaMarkers = new Map();
+
 
         async function MapInit() {
             MapSet = L.map('LeafletMap', { zoomControl: false, attributionControl: false }).setView([35.681236, 139.767125], 5);
@@ -39,8 +42,8 @@
             TsunamiArea = await fetch("Items/AreaData/Tsunami.geojson").then(res => res.json());
 
             PrefGeoJSON = L.geoJSON(PrefArea, { style: { color: "green", fillOpacity: 0.0 } }).addTo(MapSet);
-            SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
-            TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
+            //SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
+            //TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
         }
 
         function MapDisplay() {
@@ -107,7 +110,7 @@
                 dataSelect.addEventListener('change', () => {
                     const index = dataSelect.value;
                     if (index !== '') {
-                        textarea.value = JSON.stringify(P2PList[index], null, 2);
+                        textarea.value = ConvertToTelop(P2PList[index]);
                     }
                 });
                 window.addEventListener('resize', () => {
@@ -119,11 +122,111 @@
             TextAreaControl.addTo(MapSet);
         }
 
+        function P2PMap(P2PJSON) {
+            CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
+                const P2PCode = P2PJSON.code;
+                if (P2PCode == 555) {
+                    console.table(P2PJSON);
+                    const Areas = P2PJSON.areas;
+                    const dataRows = EpspAreaData.slice(1);
+                    const areaMap = new Map();
+                    dataRows.forEach(row => {
+                        const id = Number(row[1]);
+                        if (!isNaN(id)) areaMap.set(id, row);
+                    });
+                    const normalizePrefecture = name => {
+                        if (!name) return "不明";
+                        if (name === "東京") return "東京都";
+                        if (name === "京都") return "京都府";
+                        if (name === "大阪") return "大阪府";
+                        if (name === "北海道") return "北海道";
+                        return name + "県";
+                    };
+                    const peers = Areas.map(a => a.peer);
+                    const minPeer = Math.min(...peers);
+                    const maxPeer = Math.max(...peers);
+                    const avgPeer = peers.reduce((sum, p) => sum + p, 0) / peers.length;
+                    const variance = peers.reduce((sum, p) => sum + Math.pow(p - avgPeer, 2), 0) / peers.length;
+                    const stdDev = Math.sqrt(variance);
+                    const coefficientOfVariation = stdDev / avgPeer;
+                    const getColorByPeer = peer => {
+                        let ratio;
+                        if (coefficientOfVariation < 0.3 || (maxPeer - minPeer) / avgPeer < 0.5) {
+                            const sortedPeers = [...peers].sort((a, b) => a - b);
+                            const rank = sortedPeers.filter(p => p < peer).length;
+                            ratio = rank / (peers.length - 1 || 1);
+                            ratio = Math.pow(ratio, 2);
+                        } else {
+                            ratio = (peer - minPeer) / (maxPeer - minPeer || 1);
+                        }
+                        if (ratio <= 0.33) {
+                            const subRatio = ratio / 0.33;
+                            const r = 0;
+                            const g = Math.floor(128 * subRatio + 0 * (1 - subRatio));
+                            const b = Math.floor(255 * (1 - subRatio));
+                            return `rgb(${r},${g},${b})`;
+                        } else if (ratio <= 0.66) {
+                            const subRatio = (ratio - 0.33) / 0.33;
+                            const r = Math.floor(255 * subRatio);
+                            const g = 128 + Math.floor((255 - 128) * (1 - subRatio));
+                            const b = 0;
+                            return `rgb(${r},${g},${b})`;
+                        } else {
+                            const subRatio = (ratio - 0.66) / 0.34;
+                            const r = 255;
+                            const g = Math.floor(255 * (1 - subRatio));
+                            const b = 0;
+                            return `rgb(${r},${g},${b})`;
+                        }
+                    };
+                    Areas.forEach(area => {
+                        const areaId = area.id;
+                        const areaPeer = area.peer;
+                        const matchedRow = areaMap.get(areaId);
+                        if (matchedRow) {
+                            const prefecture = normalizePrefecture(matchedRow[3]);
+                            const latitude = Number(matchedRow[5]);
+                            const longitude = Number(matchedRow[6]);
+                            const icon = L.divIcon({
+                                className: "peer-number-icon",
+                                html: `<div style="color:white; padding: 2px 5px; border-radius: 4px;">${areaPeer}</div>`
+                            });
+                            if (areaMarkers.has(areaId)) {
+                                const marker = areaMarkers.get(areaId);
+                                marker.setLatLng([latitude, longitude]);
+                                marker.setIcon(icon);
+                            } else {
+                                const marker = L.marker([latitude, longitude], { icon: icon })
+                                    .addTo(MapSet);
+                                areaMarkers.set(areaId, marker);
+                            }
+                            let found = false;
+                            PrefGeoJSON.eachLayer(layer => {
+                                if (layer.feature.properties.name === prefecture && layer.feature.properties.name !== "不明") {
+                                    layer.setStyle({
+                                        fillColor: getColorByPeer(areaPeer),
+                                        fillOpacity: 0.4,
+                                        color: "black"
+                                    });
+                                    found = true;
+                                }
+                            });
+                            if (!found) console.warn(`レイヤーが見つかりません: ${prefecture}`);
+                        } else {
+                            console.warn(`CSVにIDが見つかりません: ${areaId}`);
+                        }
+                    });
+                }else if(P2PCode==551){
+
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
             await MapInit();
             document.getElementById('KoisiText').textContent = "古明地こいし:こんにちは!\n"
             MapDisplay();
-            P2PWebsocket();
+            //P2PWebsocket();
         });
     </script>
 

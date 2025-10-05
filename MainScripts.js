@@ -13,6 +13,41 @@ function TimeCahnge() {
 document.addEventListener("DOMContentLoaded", async () => { setInterval(TimeCahnge, 1000); });
 
 
+function JSONLoad(filePath) {
+    return fetch(filePath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        }
+        )
+        .catch(error => {
+            console.error("JSONの読み込みエラー:", error);
+            return null;
+        });
+}
+
+function CSVLoad(filePath) {
+    return fetch(filePath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(text => {
+            // 行ごとに分ける
+            const rows = text.trim().split("\n");
+            // 各行をカンマで分割して配列にする
+            const data = rows.map(row => row.split(","));
+            return data;
+        })
+        .catch(error => {
+            console.error("CSVの読み込みエラー:", error);
+            return null;
+        });
+}
 
 let P2PURL = "wss://api.p2pquake.net/v2/ws";
 let P2PSatus = false;
@@ -32,17 +67,20 @@ function P2PWebsocket() {
         let data = JSON.parse(event.data);
         P2PList.push(data);
         let telop = ConvertToTelop(data);
+        P2PMap(data);
         const dataSelect = document.getElementById('data-select');
         if (dataSelect) {
             const option = document.createElement('option');
             option.value = P2PList.length - 1;
-            option.text = `#${P2PList.length} ${data.time}受信  ${data.code}情報`;
+            option.text = `#${P2PList.length} ${data.code}情報`;
             dataSelect.appendChild(option);
+            dataSelect.value = option.value;
         }
         if (telop) {
             let textarea = document.getElementById('custom-textarea');
-            textarea.value = telop + "\n\n" + textarea.value;
+            textarea.value = telop;
         }
+        dataSelect.dispatchEvent(new Event('change'));
     };
     P2Psocket.onerror = (error) => {
         console.error("P2PWebsocketエラー:", error);
@@ -57,6 +95,7 @@ function P2PWebsocket() {
         }, reconnectInterval);
     };
 }
+
 
 function ConvertToTelop(json) {
     const koishiMessages = {
@@ -426,10 +465,6 @@ function formatUserquakeToTelop(userquake) {
     const { _id, code, time: receivedTime, area } = userquake;
 
 
-    if (isFinite(lng) && isFinite(lat)) {
-        // lng, lat の順番で渡す
-    }
-
     return (
         `【地震感知情報】\n` +
         `ID: ${_id}\n` +
@@ -646,4 +681,34 @@ ID: ${_id}
 【地域ごとの信頼度】
 ${areasText}`
     );
+}
+
+Testercount = 0;
+function P2Ptester() {
+    //test.jsonを読み込み
+    fetch("Items/Debug/testp2p.json")
+        .then(response => response.json())
+        .then(data => {
+            Testercount += 1;
+            if (Testercount >= data.length) {
+                Testercount = 0;
+            }
+            data = data[Testercount];
+            P2PList.push(data);
+            let telop = ConvertToTelop(data);
+            P2PMap(data);
+            const dataSelect = document.getElementById('data-select');
+            if (dataSelect) {
+                const option = document.createElement('option');
+                option.value = P2PList.length - 1;
+                option.text = `#${P2PList.length} ${data.code}情報`;
+                dataSelect.appendChild(option);
+                dataSelect.value = option.value;
+            }
+            if (telop) {
+                let textarea = document.getElementById('custom-textarea');
+                textarea.value = telop;
+            }
+        }
+        );
 }

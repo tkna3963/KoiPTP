@@ -1,0 +1,1106 @@
+[
+  {
+    "id": 0,
+    "NumID": 10,
+    "latitude": 43.062,
+    "longitude": 141.354,
+    "place": "北海道 石狩",
+    "region": "石狩地方中部"
+  },
+  {
+    "id": 1,
+    "NumID": 15,
+    "latitude": 41.82,
+    "longitude": 140.753,
+    "place": "北海道 渡島",
+    "region": "渡島地方東部"
+  },
+  {
+    "id": 2,
+    "NumID": 20,
+    "latitude": 41.859,
+    "longitude": 140.128,
+    "place": "北海道 檜山",
+    "region": "檜山地方"
+  },
+  {
+    "id": 3,
+    "NumID": 25,
+    "latitude": 42.902,
+    "longitude": 140.756,
+    "place": "北海道 後志",
+    "region": "後志地方東部"
+  },
+  {
+    "id": 4,
+    "NumID": 30,
+    "latitude": 43.198,
+    "longitude": 141.767,
+    "place": "北海道 空知",
+    "region": "空知地方南部"
+  },
+  {
+    "id": 5,
+    "NumID": 35,
+    "latitude": 43.808,
+    "longitude": 142.439,
+    "place": "北海道 上川",
+    "region": "上川地方中部"
+  },
+  {
+    "id": 6,
+    "NumID": 40,
+    "latitude": 43.935,
+    "longitude": 141.656,
+    "place": "北海道 留萌",
+    "region": "留萌地方南部"
+  },
+  {
+    "id": 7,
+    "NumID": 45,
+    "latitude": 45.398,
+    "longitude": 141.7,
+    "place": "北海道 宗谷",
+    "region": "宗谷地方北部"
+  },
+  {
+    "id": 8,
+    "NumID": 50,
+    "latitude": 44.027,
+    "longitude": 144.261,
+    "place": "北海道 網走",
+    "region": "網走地方"
+  },
+  {
+    "id": 9,
+    "NumID": 55,
+    "latitude": 42.321,
+    "longitude": 140.972,
+    "place": "北海道 胆振",
+    "region": "胆振地方中東部"
+  },
+  {
+    "id": 10,
+    "NumID": 60,
+    "latitude": 42.173,
+    "longitude": 142.768,
+    "place": "北海道 日高",
+    "region": "日高地方東部"
+  },
+  {
+    "id": 11,
+    "NumID": 65,
+    "latitude": 42.93,
+    "longitude": 143.208,
+    "place": "北海道 十勝",
+    "region": "十勝地方中部"
+  },
+  {
+    "id": 12,
+    "NumID": 70,
+    "latitude": 42.977,
+    "longitude": 144.345,
+    "place": "北海道 釧路",
+    "region": null
+  },
+  {
+    "id": 13,
+    "NumID": 75,
+    "latitude": 43.33,
+    "longitude": 145.585,
+    "place": "北海道 根室",
+    "region": "根室地方南部"
+  },
+  {
+    "id": 14,
+    "NumID": 100,
+    "latitude": 40.759,
+    "longitude": 140.428,
+    "place": "青森津軽",
+    "region": "青森県津軽北部"
+  },
+  {
+    "id": 15,
+    "NumID": 105,
+    "latitude": 40.61,
+    "longitude": 141.325,
+    "place": "青森三八上北",
+    "region": "青森県三八上北"
+  },
+  {
+    "id": 16,
+    "NumID": 106,
+    "latitude": 41.293,
+    "longitude": 141.183,
+    "place": "青森下北",
+    "region": "青森県下北"
+  },
+  {
+    "id": 17,
+    "NumID": 110,
+    "latitude": 39.843,
+    "longitude": 141.796,
+    "place": "岩手沿岸北部",
+    "region": "岩手県沿岸北部"
+  },
+  {
+    "id": 18,
+    "NumID": 111,
+    "latitude": 39.082,
+    "longitude": 141.709,
+    "place": "岩手沿岸南部",
+    "region": "岩手県沿岸南部"
+  },
+  {
+    "id": 19,
+    "NumID": 115,
+    "latitude": 39.702,
+    "longitude": 141.154,
+    "place": "岩手内陸",
+    "region": "岩手県内陸北部"
+  },
+  {
+    "id": 20,
+    "NumID": 120,
+    "latitude": 38.54,
+    "longitude": 141.128,
+    "place": "宮城北部",
+    "region": "宮城県北部"
+  },
+  {
+    "id": 21,
+    "NumID": 125,
+    "latitude": 38.172,
+    "longitude": 140.892,
+    "place": "宮城南部",
+    "region": "宮城県南部"
+  },
+  {
+    "id": 22,
+    "NumID": 130,
+    "latitude": 39.72,
+    "longitude": 140.104,
+    "place": "秋田沿岸",
+    "region": "秋田県沿岸南部"
+  },
+  {
+    "id": 23,
+    "NumID": 135,
+    "latitude": 39.7,
+    "longitude": 140.731,
+    "place": "秋田内陸",
+    "region": "秋田県内陸南部"
+  },
+  {
+    "id": 24,
+    "NumID": 140,
+    "latitude": 38.727,
+    "longitude": 139.827,
+    "place": "山形庄内",
+    "region": "山形県庄内"
+  },
+  {
+    "id": 25,
+    "NumID": 141,
+    "latitude": 38.765,
+    "longitude": 140.302,
+    "place": "山形最上",
+    "region": "山形県最上"
+  },
+  {
+    "id": 26,
+    "NumID": 142,
+    "latitude": 38.255,
+    "longitude": 140.34,
+    "place": "山形村山",
+    "region": "山形県村山"
+  },
+  {
+    "id": 27,
+    "NumID": 143,
+    "latitude": 37.922,
+    "longitude": 140.117,
+    "place": "山形置賜",
+    "region": "山形県置賜"
+  },
+  {
+    "id": 28,
+    "NumID": 150,
+    "latitude": 37.401,
+    "longitude": 140.36,
+    "place": "福島中通り",
+    "region": "福島県中通り"
+  },
+  {
+    "id": 29,
+    "NumID": 151,
+    "latitude": 37.449,
+    "longitude": 141.013,
+    "place": "福島浜通り",
+    "region": "福島県浜通り"
+  },
+  {
+    "id": 30,
+    "NumID": 152,
+    "latitude": 37.46,
+    "longitude": 139.841,
+    "place": "福島会津",
+    "region": "福島県会津"
+  },
+  {
+    "id": 31,
+    "NumID": 200,
+    "latitude": 36.457,
+    "longitude": 140.486,
+    "place": "茨城北部",
+    "region": "茨城県北部"
+  },
+  {
+    "id": 32,
+    "NumID": 205,
+    "latitude": 36.083,
+    "longitude": 140.076,
+    "place": "茨城南部",
+    "region": "茨城県南部"
+  },
+  {
+    "id": 33,
+    "NumID": 210,
+    "latitude": 36.961,
+    "longitude": 140.046,
+    "place": "栃木北部",
+    "region": "栃木県北部"
+  },
+  {
+    "id": 34,
+    "NumID": 215,
+    "latitude": 36.426,
+    "longitude": 139.803,
+    "place": "栃木南部",
+    "region": "栃木県南部"
+  },
+  {
+    "id": 35,
+    "NumID": 220,
+    "latitude": 36.678,
+    "longitude": 138.999,
+    "place": "群馬北部",
+    "region": "群馬県北部"
+  },
+  {
+    "id": 36,
+    "NumID": 225,
+    "latitude": 36.389,
+    "longitude": 139.063,
+    "place": "群馬南部",
+    "region": "群馬県南部"
+  },
+  {
+    "id": 37,
+    "NumID": 230,
+    "latitude": 36.147,
+    "longitude": 139.388,
+    "place": "埼玉北部",
+    "region": "埼玉県北部"
+  },
+  {
+    "id": 38,
+    "NumID": 231,
+    "latitude": 35.925,
+    "longitude": 139.485,
+    "place": "埼玉南部",
+    "region": "埼玉県南部"
+  },
+  {
+    "id": 39,
+    "NumID": 232,
+    "latitude": 35.991,
+    "longitude": 139.085,
+    "place": "埼玉秩父",
+    "region": "埼玉県秩父"
+  },
+  {
+    "id": 40,
+    "NumID": 240,
+    "latitude": 35.707,
+    "longitude": 140.564,
+    "place": "千葉北東部",
+    "region": "千葉県北東部"
+  },
+  {
+    "id": 41,
+    "NumID": 241,
+    "latitude": 35.607,
+    "longitude": 140.106,
+    "place": "千葉北西部",
+    "region": "千葉県北西部"
+  },
+  {
+    "id": 42,
+    "NumID": 242,
+    "latitude": 35.33,
+    "longitude": 139.902,
+    "place": "千葉南部",
+    "region": "千葉県南部"
+  },
+  {
+    "id": 43,
+    "NumID": 250,
+    "latitude": 35.699,
+    "longitude": 139.502,
+    "place": "東京",
+    "region": "東京都多摩東部"
+  },
+  {
+    "id": 44,
+    "NumID": 255,
+    "latitude": 34.377,
+    "longitude": 139.257,
+    "place": "伊豆諸島北部",
+    "region": "新島"
+  },
+  {
+    "id": 45,
+    "NumID": 260,
+    "latitude": 34.075,
+    "longitude": 139.479,
+    "place": "伊豆諸島南部",
+    "region": "三宅島"
+  },
+  {
+    "id": 46,
+    "NumID": 265,
+    "latitude": 27.094,
+    "longitude": 142.191,
+    "place": "小笠原",
+    "region": "小笠原"
+  },
+  {
+    "id": 47,
+    "NumID": 270,
+    "latitude": 35.443,
+    "longitude": 139.638,
+    "place": "神奈川東部",
+    "region": "神奈川県東部"
+  },
+  {
+    "id": 48,
+    "NumID": 275,
+    "latitude": 35.348,
+    "longitude": 139.139,
+    "place": "神奈川西部",
+    "region": "神奈川県西部"
+  },
+  {
+    "id": 49,
+    "NumID": 300,
+    "latitude": 37.147,
+    "longitude": 138.236,
+    "place": "新潟上越",
+    "region": "新潟県上越"
+  },
+  {
+    "id": 50,
+    "NumID": 301,
+    "latitude": 37.446,
+    "longitude": 138.851,
+    "place": "新潟中越",
+    "region": "新潟県中越"
+  },
+  {
+    "id": 51,
+    "NumID": 302,
+    "latitude": 37.948,
+    "longitude": 139.327,
+    "place": "新潟下越",
+    "region": "新潟県下越"
+  },
+  {
+    "id": 52,
+    "NumID": 305,
+    "latitude": 38.018,
+    "longitude": 138.368,
+    "place": "新潟佐渡",
+    "region": "新潟県佐渡"
+  },
+  {
+    "id": 53,
+    "NumID": 310,
+    "latitude": 36.827,
+    "longitude": 137.409,
+    "place": "富山東部",
+    "region": "富山県東部"
+  },
+  {
+    "id": 54,
+    "NumID": 315,
+    "latitude": 36.647,
+    "longitude": 136.962,
+    "place": "富山西部",
+    "region": "富山県西部"
+  },
+  {
+    "id": 55,
+    "NumID": 320,
+    "latitude": 37.39,
+    "longitude": 136.899,
+    "place": "石川能登",
+    "region": "石川県能登"
+  },
+  {
+    "id": 56,
+    "NumID": 325,
+    "latitude": 36.561,
+    "longitude": 136.656,
+    "place": "石川加賀",
+    "region": "石川県加賀"
+  },
+  {
+    "id": 57,
+    "NumID": 330,
+    "latitude": 35.956,
+    "longitude": 136.184,
+    "place": "福井嶺北",
+    "region": "福井県嶺北"
+  },
+  {
+    "id": 58,
+    "NumID": 335,
+    "latitude": 35.461,
+    "longitude": 135.857,
+    "place": "福井嶺南",
+    "region": "福井県嶺南"
+  },
+  {
+    "id": 59,
+    "NumID": 340,
+    "latitude": 35.551,
+    "longitude": 138.905,
+    "place": "山梨東部",
+    "region": "山梨県東部・富士五湖"
+  },
+  {
+    "id": 60,
+    "NumID": 345,
+    "latitude": 35.608,
+    "longitude": 138.464,
+    "place": "山梨中・西部",
+    "region": "山梨県中・西部"
+  },
+  {
+    "id": 61,
+    "NumID": 350,
+    "latitude": 36.648,
+    "longitude": 138.194,
+    "place": "長野北部",
+    "region": "長野県北部"
+  },
+  {
+    "id": 62,
+    "NumID": 351,
+    "latitude": 36.238,
+    "longitude": 137.972,
+    "place": "長野中部",
+    "region": "長野県中部"
+  },
+  {
+    "id": 63,
+    "NumID": 355,
+    "latitude": 35.551,
+    "longitude": 137.878,
+    "place": "長野南部",
+    "region": "長野県南部"
+  },
+  {
+    "id": 64,
+    "NumID": 400,
+    "latitude": 36.146,
+    "longitude": 137.252,
+    "place": "岐阜飛騨",
+    "region": "岐阜県飛騨"
+  },
+  {
+    "id": 65,
+    "NumID": 405,
+    "latitude": 35.544,
+    "longitude": 136.907,
+    "place": "岐阜美濃",
+    "region": "岐阜県美濃中西部"
+  },
+  {
+    "id": 66,
+    "NumID": 410,
+    "latitude": 34.976,
+    "longitude": 138.946,
+    "place": "静岡伊豆",
+    "region": "静岡県伊豆"
+  },
+  {
+    "id": 67,
+    "NumID": 411,
+    "latitude": 35.161,
+    "longitude": 138.676,
+    "place": "静岡東部",
+    "region": "静岡県東部"
+  },
+  {
+    "id": 68,
+    "NumID": 415,
+    "latitude": 34.867,
+    "longitude": 138.257,
+    "place": "静岡中部",
+    "region": "静岡県中部"
+  },
+  {
+    "id": 69,
+    "NumID": 416,
+    "latitude": 34.717,
+    "longitude": 137.851,
+    "place": "静岡西部",
+    "region": "静岡県西部"
+  },
+  {
+    "id": 70,
+    "NumID": 420,
+    "latitude": 34.898,
+    "longitude": 137.497,
+    "place": "愛知東部",
+    "region": "愛知県東部"
+  },
+  {
+    "id": 71,
+    "NumID": 425,
+    "latitude": 35.053,
+    "longitude": 137.012,
+    "place": "愛知西部",
+    "region": "愛知県西部"
+  },
+  {
+    "id": 72,
+    "NumID": 430,
+    "latitude": 34.881,
+    "longitude": 136.584,
+    "place": "三重北中部",
+    "region": "三重県北部"
+  },
+  {
+    "id": 73,
+    "NumID": 435,
+    "latitude": 34.211,
+    "longitude": 136.337,
+    "place": "三重南部",
+    "region": "三重県南部"
+  },
+  {
+    "id": 74,
+    "NumID": 440,
+    "latitude": 35.38,
+    "longitude": 136.278,
+    "place": "滋賀北部",
+    "region": "滋賀県北部"
+  },
+  {
+    "id": 75,
+    "NumID": 445,
+    "latitude": 35.067,
+    "longitude": 136.025,
+    "place": "滋賀南部",
+    "region": "滋賀県南部"
+  },
+  {
+    "id": 76,
+    "NumID": 450,
+    "latitude": 35.474,
+    "longitude": 135.385,
+    "place": "京都北部",
+    "region": "京都府北部"
+  },
+  {
+    "id": 77,
+    "NumID": 455,
+    "latitude": 35.011,
+    "longitude": 135.768,
+    "place": "京都南部",
+    "region": "京都府南部"
+  },
+  {
+    "id": 78,
+    "NumID": 460,
+    "latitude": 34.816,
+    "longitude": 135.568,
+    "place": "大阪北部",
+    "region": "大阪府北部"
+  },
+  {
+    "id": 79,
+    "NumID": 465,
+    "latitude": 34.483,
+    "longitude": 135.423,
+    "place": "大阪南部",
+    "region": "大阪府南部"
+  },
+  {
+    "id": 80,
+    "NumID": 470,
+    "latitude": 35.544,
+    "longitude": 134.82,
+    "place": "兵庫北部",
+    "region": "兵庫県北部"
+  },
+  {
+    "id": 81,
+    "NumID": 475,
+    "latitude": 34.853,
+    "longitude": 134.931,
+    "place": "兵庫南部",
+    "region": "兵庫県南東部"
+  },
+  {
+    "id": 82,
+    "NumID": 480,
+    "latitude": 34.396,
+    "longitude": 135.857,
+    "place": "奈良",
+    "region": "奈良県"
+  },
+  {
+    "id": 83,
+    "NumID": 490,
+    "latitude": 34.065,
+    "longitude": 135.254,
+    "place": "和歌山北部",
+    "region": "和歌山県北部"
+  },
+  {
+    "id": 84,
+    "NumID": 495,
+    "latitude": 33.678,
+    "longitude": 135.348,
+    "place": "和歌山南部",
+    "region": "和歌山県南部"
+  },
+  {
+    "id": 85,
+    "NumID": 500,
+    "latitude": 35.501,
+    "longitude": 134.235,
+    "place": "鳥取東部",
+    "region": "鳥取県東部"
+  },
+  {
+    "id": 86,
+    "NumID": 505,
+    "latitude": 35.495,
+    "longitude": 133.693,
+    "place": "鳥取中・西部",
+    "region": "鳥取県中部"
+  },
+  {
+    "id": 87,
+    "NumID": 510,
+    "latitude": 35.367,
+    "longitude": 132.754,
+    "place": "島根東部",
+    "region": "島根県東部"
+  },
+  {
+    "id": 88,
+    "NumID": 515,
+    "latitude": 34.899,
+    "longitude": 132.079,
+    "place": "島根西部",
+    "region": "島根県西部"
+  },
+  {
+    "id": 89,
+    "NumID": 514,
+    "latitude": 36.209,
+    "longitude": 133.321,
+    "place": "島根隠岐",
+    "region": "島根県隠岐"
+  },
+  {
+    "id": 90,
+    "NumID": 520,
+    "latitude": 35.069,
+    "longitude": 134.004,
+    "place": "岡山北部",
+    "region": "岡山県北部"
+  },
+  {
+    "id": 91,
+    "NumID": 525,
+    "latitude": 34.655,
+    "longitude": 133.919,
+    "place": "岡山南部",
+    "region": "岡山県南部"
+  },
+  {
+    "id": 92,
+    "NumID": 530,
+    "latitude": 34.666,
+    "longitude": 132.704,
+    "place": "広島北部",
+    "region": "広島県北部"
+  },
+  {
+    "id": 93,
+    "NumID": 535,
+    "latitude": 34.341,
+    "longitude": 132.907,
+    "place": "広島南部",
+    "region": "広島県南西部"
+  },
+  {
+    "id": 94,
+    "NumID": 540,
+    "latitude": 34.408,
+    "longitude": 131.399,
+    "place": "山口北部",
+    "region": "山口県北部"
+  },
+  {
+    "id": 95,
+    "NumID": 545,
+    "latitude": 34.05,
+    "longitude": 131.804,
+    "place": "山口中・東部",
+    "region": "山口県中部"
+  },
+  {
+    "id": 96,
+    "NumID": 541,
+    "latitude": 33.957,
+    "longitude": 130.941,
+    "place": "山口西部",
+    "region": "山口県西部"
+  },
+  {
+    "id": 97,
+    "NumID": 550,
+    "latitude": 34.025,
+    "longitude": 134.259,
+    "place": "徳島北部",
+    "region": "徳島県北部"
+  },
+  {
+    "id": 98,
+    "NumID": 555,
+    "latitude": 33.734,
+    "longitude": 134.535,
+    "place": "徳島南部",
+    "region": "徳島県南部"
+  },
+  {
+    "id": 99,
+    "NumID": 560,
+    "latitude": 34.342,
+    "longitude": 134.046,
+    "place": "香川",
+    "region": "香川県東部"
+  },
+  {
+    "id": 100,
+    "NumID": 570,
+    "latitude": 33.919,
+    "longitude": 133.181,
+    "place": "愛媛東予",
+    "region": "愛媛県東予"
+  },
+  {
+    "id": 101,
+    "NumID": 575,
+    "latitude": 33.839,
+    "longitude": 132.765,
+    "place": "愛媛中予",
+    "region": "愛媛県中予"
+  },
+  {
+    "id": 102,
+    "NumID": 576,
+    "latitude": 33.362,
+    "longitude": 132.51,
+    "place": "愛媛南予",
+    "region": "愛媛県南予"
+  },
+  {
+    "id": 103,
+    "NumID": 580,
+    "latitude": 33.424,
+    "longitude": 134.02,
+    "place": "高知東部",
+    "region": "高知県東部"
+  },
+  {
+    "id": 104,
+    "NumID": 581,
+    "latitude": 33.559,
+    "longitude": 133.529,
+    "place": "高知中部",
+    "region": "高知県中部"
+  },
+  {
+    "id": 105,
+    "NumID": 582,
+    "latitude": 32.991,
+    "longitude": 132.933,
+    "place": "高知西部",
+    "region": "高知県西部"
+  },
+  {
+    "id": 106,
+    "NumID": 600,
+    "latitude": 33.59,
+    "longitude": 130.401,
+    "place": "福岡福岡",
+    "region": "福岡県福岡"
+  },
+  {
+    "id": 107,
+    "NumID": 601,
+    "latitude": 33.883,
+    "longitude": 130.875,
+    "place": "福岡北九州",
+    "region": "福岡県北九州"
+  },
+  {
+    "id": 108,
+    "NumID": 602,
+    "latitude": 33.646,
+    "longitude": 130.691,
+    "place": "福岡筑豊",
+    "region": "福岡県筑豊"
+  },
+  {
+    "id": 109,
+    "NumID": 605,
+    "latitude": 33.319,
+    "longitude": 130.508,
+    "place": "福岡筑後",
+    "region": "福岡県筑後"
+  },
+  {
+    "id": 110,
+    "NumID": 610,
+    "latitude": 33.45,
+    "longitude": 129.968,
+    "place": "佐賀北部",
+    "region": "佐賀県北部"
+  },
+  {
+    "id": 111,
+    "NumID": 615,
+    "latitude": 33.181,
+    "longitude": 130.143,
+    "place": "佐賀南部",
+    "region": "佐賀県南部"
+  },
+  {
+    "id": 112,
+    "NumID": 620,
+    "latitude": 33.179,
+    "longitude": 129.715,
+    "place": "長崎北部",
+    "region": "長崎県北部"
+  },
+  {
+    "id": 113,
+    "NumID": 625,
+    "latitude": 32.843,
+    "longitude": 130.053,
+    "place": "長崎南部",
+    "region": "長崎県南西部"
+  },
+  {
+    "id": 114,
+    "NumID": 630,
+    "latitude": 34.202,
+    "longitude": 129.287,
+    "place": "長崎壱岐・対馬",
+    "region": "長崎県対馬"
+  },
+  {
+    "id": 115,
+    "NumID": 635,
+    "latitude": 32.695,
+    "longitude": 128.84,
+    "place": "長崎五島",
+    "region": "長崎県五島"
+  },
+  {
+    "id": 116,
+    "NumID": 640,
+    "latitude": 32.951,
+    "longitude": 131.12,
+    "place": "熊本阿蘇",
+    "region": "熊本県阿蘇"
+  },
+  {
+    "id": 117,
+    "NumID": 641,
+    "latitude": 32.803,
+    "longitude": 130.707,
+    "place": "熊本熊本",
+    "region": "熊本県熊本"
+  },
+  {
+    "id": 118,
+    "NumID": 645,
+    "latitude": 32.24,
+    "longitude": 130.897,
+    "place": "熊本球磨",
+    "region": "熊本県球磨"
+  },
+  {
+    "id": 119,
+    "NumID": 646,
+    "latitude": 32.233,
+    "longitude": 130.439,
+    "place": "熊本天草・芦北",
+    "region": "熊本県天草・芦北"
+  },
+  {
+    "id": 120,
+    "NumID": 650,
+    "latitude": 33.531,
+    "longitude": 131.349,
+    "place": "大分北部",
+    "region": "大分県北部"
+  },
+  {
+    "id": 121,
+    "NumID": 651,
+    "latitude": 33.239,
+    "longitude": 131.609,
+    "place": "大分中部",
+    "region": "大分県中部"
+  },
+  {
+    "id": 122,
+    "NumID": 655,
+    "latitude": 33.228,
+    "longitude": 131.188,
+    "place": "大分西部",
+    "region": "大分県西部"
+  },
+  {
+    "id": 123,
+    "NumID": 656,
+    "latitude": 32.959,
+    "longitude": 131.9,
+    "place": "大分南部",
+    "region": "大分県南部"
+  },
+  {
+    "id": 124,
+    "NumID": 660,
+    "latitude": 32.422,
+    "longitude": 131.624,
+    "place": "宮崎北部平野部",
+    "region": "宮崎県北部平野部"
+  },
+  {
+    "id": 125,
+    "NumID": 661,
+    "latitude": 32.467,
+    "longitude": 131.158,
+    "place": "宮崎北部山沿い",
+    "region": "宮崎県北部山沿い"
+  },
+  {
+    "id": 126,
+    "NumID": 665,
+    "latitude": 31.601,
+    "longitude": 131.378,
+    "place": "宮崎南部平野部",
+    "region": "宮崎県南部平野部"
+  },
+  {
+    "id": 127,
+    "NumID": 666,
+    "latitude": 31.928,
+    "longitude": 131.007,
+    "place": "宮崎南部山沿い",
+    "region": "宮崎県南部山沿い"
+  },
+  {
+    "id": 128,
+    "NumID": 670,
+    "latitude": 31.813,
+    "longitude": 130.304,
+    "place": "鹿児島薩摩",
+    "region": "鹿児島県薩摩"
+  },
+  {
+    "id": 129,
+    "NumID": 675,
+    "latitude": 31.378,
+    "longitude": 130.852,
+    "place": "鹿児島大隅",
+    "region": "鹿児島県大隅"
+  },
+  {
+    "id": 130,
+    "NumID": 680,
+    "latitude": 30.732,
+    "longitude": 130.996,
+    "place": "種子島・屋久島",
+    "region": "鹿児島県種子島"
+  },
+  {
+    "id": 131,
+    "NumID": 685,
+    "latitude": 28.377,
+    "longitude": 129.493,
+    "place": "鹿児島奄美",
+    "region": "鹿児島県奄美北部"
+  },
+  {
+    "id": 132,
+    "NumID": 700,
+    "latitude": 26.591,
+    "longitude": 127.977,
+    "place": "沖縄本島北部",
+    "region": "沖縄県本島北部"
+  },
+  {
+    "id": 133,
+    "NumID": 701,
+    "latitude": 26.281,
+    "longitude": 127.778,
+    "place": "沖縄本島中南部",
+    "region": "沖縄県本島中南部"
+  },
+  {
+    "id": 134,
+    "NumID": 702,
+    "latitude": 26.349,
+    "longitude": 126.747,
+    "place": "沖縄久米島",
+    "region": "沖縄県久米島"
+  },
+  {
+    "id": 135,
+    "NumID": 705,
+    "latitude": 24.286,
+    "longitude": 123.881,
+    "place": "沖縄八重山",
+    "region": "沖縄県西表島"
+  },
+  {
+    "id": 136,
+    "NumID": 706,
+    "latitude": 24.805,
+    "longitude": 125.281,
+    "place": "沖縄宮古島",
+    "region": "沖縄県宮古島"
+  },
+  {
+    "id": 137,
+    "NumID": 710,
+    "latitude": 25.828,
+    "longitude": 131.232,
+    "place": "沖縄大東島",
+    "region": "沖縄県大東島"
+  }
+]

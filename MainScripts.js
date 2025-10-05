@@ -67,6 +67,7 @@ function P2PWebsocket() {
         let data = JSON.parse(event.data);
         P2PList.push(data);
         let telop = ConvertToTelop(data);
+        P2PMap(null)
         P2PMap(data);
         const dataSelect = document.getElementById('data-select');
         if (dataSelect) {
@@ -174,6 +175,24 @@ function getShindoColorByName(shindoName) {
         case "震度1": return "#3498db";       // 青 → ポップブルー
         default: return "#95a5a6";            // 不明 → グレーで落ち着かせる
     }
+}
+
+function geetShindo(scale) {
+    const maxScaleMap = {
+        "-1": "震度情報なし",
+        10: "震度1",
+        20: "震度2",
+        30: "震度3",
+        40: "震度4",
+        45: "震度5弱",
+        46: "震度5弱以上（推定）",
+        50: "震度5強",
+        55: "震度6弱",
+        60: "震度6強",
+        70: "震度7"
+    };
+    const maxScaleText = maxScaleMap[scale] || "不明";
+    return maxScaleText;
 }
 
 function formatJMAQuakeToTelop(jmaQuake) {

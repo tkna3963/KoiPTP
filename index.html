@@ -31,6 +31,7 @@
         let TsunamiGeoJSON;
         let EpspAreaData = null;
         const areaMarkers = new Map();
+        let EpicenterMarker;
 
 
         async function MapInit() {
@@ -42,7 +43,7 @@
             TsunamiArea = await fetch("Items/AreaData/Tsunami.geojson").then(res => res.json());
 
             PrefGeoJSON = L.geoJSON(PrefArea, { style: { color: "green", fillOpacity: 0.0 } }).addTo(MapSet);
-            //SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
+            SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
             //TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
         }
 
@@ -123,9 +124,26 @@
         }
 
         function P2PMap(P2PJSON) {
-            CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
-                const P2PCode = P2PJSON.code;
-                if (P2PCode == 555) {
+            areaMarkers.forEach(marker => MapSet.removeLayer(marker));
+            areaMarkers.clear();
+            if (EpicenterMarker) {
+                MapSet.removeLayer(EpicenterMarker);
+                EpicenterMarker = null;
+            }
+            PrefGeoJSON.eachLayer(layer => {
+                layer.setStyle({
+                    fillColor: "#FFFFFF",
+                    fillOpacity: 0.1,
+                    color: "green"
+                });
+            });
+            if (P2PJSON === null) {
+                console.log("P2PMap: すべての操作をキャンセルしました。");
+                return;
+            }
+            const P2PCode = P2PJSON.code;
+            if (P2PCode == 555) {
+                CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
                     console.table(P2PJSON);
                     const Areas = P2PJSON.areas;
                     const dataRows = EpspAreaData.slice(1);
@@ -191,15 +209,8 @@
                                 className: "peer-number-icon",
                                 html: `<div style="color:white; padding: 2px 5px; border-radius: 4px;">${areaPeer}</div>`
                             });
-                            if (areaMarkers.has(areaId)) {
-                                const marker = areaMarkers.get(areaId);
-                                marker.setLatLng([latitude, longitude]);
-                                marker.setIcon(icon);
-                            } else {
-                                const marker = L.marker([latitude, longitude], { icon: icon })
-                                    .addTo(MapSet);
-                                areaMarkers.set(areaId, marker);
-                            }
+                            const marker = L.marker([latitude, longitude], { icon: icon }).addTo(MapSet);
+                            areaMarkers.set(areaId, marker);
                             let found = false;
                             PrefGeoJSON.eachLayer(layer => {
                                 if (layer.feature.properties.name === prefecture && layer.feature.properties.name !== "不明") {
@@ -216,17 +227,82 @@
                             console.warn(`CSVにIDが見つかりません: ${areaId}`);
                         }
                     });
-                }else if(P2PCode==551){
+                });
+            } else if (P2PCode === 551) {
+                JSONLoad("Items/AreaData/PointSeismicIntensityLocation.json").then(PointSeismicIntensityLocation => {
+                    const EpLa = P2PJSON.earthquake.hypocenter.latitude;
+                    const Eplo = P2PJSON.earthquake.hypocenter.longitude;
+                    const epicenterIcon = L.icon({
+                        iconUrl: 'Items/Img/epicenter.png',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 32],
+                        popupAnchor: [0, -32]
+                    });
+                    if (EpicenterMarker) {
+                        MapSet.removeLayer(EpicenterMarker);
+                    }
+                    EpicenterMarker = L.marker([EpLa, Eplo], { icon: epicenterIcon })
+                        .addTo(MapSet)
+                        .openPopup();
+                    const locationMap = {};
+                    for (const key in PointSeismicIntensityLocation) {
+                        const item = PointSeismicIntensityLocation[key];
+                        locationMap[item.name] = item.location;
+                    }
+                    const AreaScale = P2PJSON.points;
+                    AreaScale.forEach(area => {
+                        const Addr = area.addr;
+                        const Scale = area.scale;
+                        const location = locationMap[Addr];
+                        if (location) {
+                            const color = getShindoColorByName(geetShindo(Scale));
+                            const shindoIcon = L.divIcon({
+                                className: 'custom-shindo-icon',
+                                html: `<div style="
+    background-color: ${color};
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 10px;
+    border: 2px solid #333;
+">${geetShindo(Scale).replace("震度5弱以上（推定）", "?").replace("震度", "")}</div>
+`
+                            });
+                            L.marker(location, { icon: shindoIcon }).addTo(MapSet);
+                        }
+                    });
+                });
+            } else if (P2PCode == 9611) {
+                CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
+                    const Area_Confidences = P2PJSON.area_confidences;
+                    const areaMap = new Map();
+                    if (Area_Confidences && Object.keys(Area_Confidences).length > 0) {
+                        Object.entries(P2PJSON.area_confidences).forEach(([areaId, info]) => {
+                            const row = areaMap.get(Number(areaId));
+                            if (!row) { console.warn(`CSVにIDが見つかりません: ${areaId}`); return; }
+                            const prefecture = normalizePrefecture(row[3]);
+                            const latitude = Number(row[5]);
+                            const longitude = Number(row[6]);
+                            console.log(prefecture)
+                        });
+                    }
+                });
+            }
 
-                }
-            });
         }
+
+
 
         document.addEventListener("DOMContentLoaded", async () => {
             await MapInit();
             document.getElementById('KoisiText').textContent = "古明地こいし:こんにちは!\n"
             MapDisplay();
-            //P2PWebsocket();
+            P2PWebsocket();
         });
     </script>
 

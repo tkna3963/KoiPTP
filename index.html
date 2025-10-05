@@ -46,7 +46,7 @@
 
             PrefGeoJSON = L.geoJSON(PrefArea, { style: { color: "green", fillOpacity: 0.0 } }).addTo(MapSet);
             SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
-            //TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
+            TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
         }
 
         function MapDisplay() {
@@ -223,17 +223,29 @@
                     });
                 });
             } else if (P2PCode == 556) {
-                JSONLoad("Items/AreaData/P2PSaibunn.json").then(() => {
-                    const EpLa = P2PJSON.earthquake.hypocenter.latitude, Eplo = P2PJSON.earthquake.hypocenter.longitude;
-                    EpicenterMarker = L.marker([EpLa, Eplo], {
+                const EpLa = P2PJSON.earthquake.hypocenter.latitude, Eplo = P2PJSON.earthquake.hypocenter.longitude;
+                EpicenterMarker = L.marker([EpLa, Eplo], {
+                    icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
+                }).addTo(MapSet).openPopup();
+                P2PJSON.areas.forEach(area => {
+                    const color = getShindoColorByName(geetShindo(area.scaleFrom));
+                    SaibunGeoJSON.eachLayer(layer => layer.feature.properties.name === area.name &&
+                        layer.setStyle({ fillColor: color, fillOpacity: 0.4, color }));
+                });
+            } else if (P2PCode == 561) {
+                JSONLoad("Items/AreaData/P2PSaibunn.json").then(P2PSaibun => {
+                    const Area561NumID = P2PJSON.area;
+                    const areaData = P2PSaibun.find(item => item.NumID === Area561NumID);
+                    const region = areaData.region;
+                    EpicenterMarker = L.marker([areaData.latitude, areaData.longitude], {
                         icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
                     }).addTo(MapSet).openPopup();
-                    P2PJSON.areas.forEach(area => {
-                        const color = getShindoColorByName(geetShindo(area.scaleFrom));
-                        SaibunGeoJSON.eachLayer(layer => layer.feature.properties.name === area.name &&
-                            layer.setStyle({ fillColor: color, fillOpacity: 0.4, color }));
+                    SaibunGeoJSON.eachLayer(layer => {
+                        if (layer.feature.properties.name === region) {
+                            layer.setStyle({ fillColor: "blue", fillOpacity: 0.4, color: "blue" });
+                        }
                     });
-                });
+                })
             }
         }
 

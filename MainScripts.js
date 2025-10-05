@@ -37,9 +37,7 @@ function CSVLoad(filePath) {
             return response.text();
         })
         .then(text => {
-            // 行ごとに分ける
             const rows = text.trim().split("\n");
-            // 各行をカンマで分割して配列にする
             const data = rows.map(row => row.split(","));
             return data;
         })
@@ -55,7 +53,6 @@ let P2Psocket;
 let P2PList = [];
 let reconnectInterval = 3000;
 
-
 function P2PWebsocket() {
     P2Psocket = new WebSocket(P2PURL);
     P2Psocket.onopen = () => {
@@ -67,7 +64,6 @@ function P2PWebsocket() {
         let data = JSON.parse(event.data);
         P2PList.push(data);
         let telop = ConvertToTelop(data);
-        P2PMap(null)
         P2PMap(null)
         P2PMap(data);
         const dataSelect = document.getElementById('data-select');

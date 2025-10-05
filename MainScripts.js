@@ -68,6 +68,7 @@ function P2PWebsocket() {
         P2PList.push(data);
         let telop = ConvertToTelop(data);
         P2PMap(null)
+        P2PMap(null)
         P2PMap(data);
         const dataSelect = document.getElementById('data-select');
         if (dataSelect) {
@@ -715,6 +716,7 @@ function P2Ptester() {
             data = data[Testercount];
             P2PList.push(data);
             let telop = ConvertToTelop(data);
+            P2PMap(null)
             P2PMap(data);
             const dataSelect = document.getElementById('data-select');
             if (dataSelect) {

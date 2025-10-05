@@ -33,7 +33,8 @@
         let EpspAreaData = null;
         const areaMarkers = new Map();
         let EpicenterMarker;
-
+        const marker9611Map = new Map();
+        let shindoMarkers = new Map();
 
         async function MapInit() {
             MapSet = L.map('LeafletMap', { zoomControl: false, attributionControl: false }).setView([35.681236, 139.767125], 5);
@@ -127,177 +128,114 @@
         function P2PMap(P2PJSON) {
             areaMarkers.forEach(marker => MapSet.removeLayer(marker));
             areaMarkers.clear();
-            if (EpicenterMarker) {
-                MapSet.removeLayer(EpicenterMarker);
-                EpicenterMarker = null;
-            }
-            PrefGeoJSON.eachLayer(layer => {
-                layer.setStyle({
-                    fillColor: "#FFFFFF",
-                    fillOpacity: 0.1,
-                    color: "green"
-                });
-            });
+            if (EpicenterMarker) MapSet.removeLayer(EpicenterMarker), EpicenterMarker = null;
+            PrefGeoJSON.eachLayer(layer => layer.setStyle({ fillColor: "#FFF", fillOpacity: 0.1, color: "green" }));
             if (P2PJSON === null) {
-                console.log("P2PMap: すべての操作をキャンセルしました。");
+                areaMarkers.forEach(marker => MapSet.removeLayer(marker));
+                areaMarkers.clear();
+                marker9611Map.forEach(marker => MapSet.removeLayer(marker));
+                marker9611Map.clear();
+                shindoMarkers.forEach(marker => MapSet.removeLayer(marker));
+                shindoMarkers.clear();
+                if (EpicenterMarker) MapSet.removeLayer(EpicenterMarker), EpicenterMarker = null;
+                PrefGeoJSON.eachLayer(layer => layer.setStyle({ fillColor: "#FFF", fillOpacity: 0.1, color: "green" }));
+                SaibunGeoJSON.eachLayer(layer => layer.setStyle({ fillColor: "#FFF", fillOpacity: 0.1, color: "green" }));
                 return;
             }
             const P2PCode = P2PJSON.code;
+            const normalizePrefecture = name => !name ? "不明" : name === "東京" ? "東京都" : name === "京都" ? "京都府" : name === "大阪" ? "大阪府" : name === "北海道" ? "北海道" : name + "県";
             if (P2PCode == 555) {
                 CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
-                    console.table(P2PJSON);
-                    const Areas = P2PJSON.areas;
-                    const dataRows = EpspAreaData.slice(1);
-                    const areaMap = new Map();
-                    dataRows.forEach(row => {
-                        const id = Number(row[1]);
-                        if (!isNaN(id)) areaMap.set(id, row);
-                    });
-                    const normalizePrefecture = name => {
-                        if (!name) return "不明";
-                        if (name === "東京") return "東京都";
-                        if (name === "京都") return "京都府";
-                        if (name === "大阪") return "大阪府";
-                        if (name === "北海道") return "北海道";
-                        return name + "県";
-                    };
-                    const peers = Areas.map(a => a.peer);
-                    const minPeer = Math.min(...peers);
-                    const maxPeer = Math.max(...peers);
-                    const avgPeer = peers.reduce((sum, p) => sum + p, 0) / peers.length;
-                    const variance = peers.reduce((sum, p) => sum + Math.pow(p - avgPeer, 2), 0) / peers.length;
-                    const stdDev = Math.sqrt(variance);
-                    const coefficientOfVariation = stdDev / avgPeer;
+                    const Areas = P2PJSON.areas, areaMap = new Map();
+                    EpspAreaData.slice(1).forEach(row => !isNaN(+row[1]) && areaMap.set(+row[1], row));
+                    const peers = Areas.map(area => area.peer), minPeer = Math.min(...peers), maxPeer = Math.max(...peers);
+                    const avgPeer = peers.reduce((sum, peer) => sum + peer, 0) / peers.length;
+                    const variance = peers.reduce((sum, peer) => sum + (peer - avgPeer) ** 2, 0) / peers.length;
+                    const stdDev = Math.sqrt(variance), coefficientOfVariation = stdDev / avgPeer;
                     const getColorByPeer = peer => {
-                        let ratio;
-                        if (coefficientOfVariation < 0.3 || (maxPeer - minPeer) / avgPeer < 0.5) {
-                            const sortedPeers = [...peers].sort((a, b) => a - b);
-                            const rank = sortedPeers.filter(p => p < peer).length;
-                            ratio = rank / (peers.length - 1 || 1);
-                            ratio = Math.pow(ratio, 2);
-                        } else {
-                            ratio = (peer - minPeer) / (maxPeer - minPeer || 1);
-                        }
+                        let ratio = coefficientOfVariation < 0.3 || (maxPeer - minPeer) / avgPeer < 0.5 ?
+                            (peers.filter(p => p < peer).length / (peers.length - 1 || 1)) ** 2 :
+                            (peer - minPeer) / (maxPeer - minPeer || 1);
                         if (ratio <= 0.33) {
                             const subRatio = ratio / 0.33;
-                            const r = 0;
-                            const g = Math.floor(128 * subRatio + 0 * (1 - subRatio));
-                            const b = Math.floor(255 * (1 - subRatio));
-                            return `rgb(${r},${g},${b})`;
+                            return `rgb(0,${~~(128 * subRatio)},${~~(255 * (1 - subRatio))})`;
                         } else if (ratio <= 0.66) {
                             const subRatio = (ratio - 0.33) / 0.33;
-                            const r = Math.floor(255 * subRatio);
-                            const g = 128 + Math.floor((255 - 128) * (1 - subRatio));
-                            const b = 0;
-                            return `rgb(${r},${g},${b})`;
+                            return `rgb(${~~(255 * subRatio)},${128 + ~~((255 - 128) * (1 - subRatio))},0)`;
                         } else {
                             const subRatio = (ratio - 0.66) / 0.34;
-                            const r = 255;
-                            const g = Math.floor(255 * (1 - subRatio));
-                            const b = 0;
-                            return `rgb(${r},${g},${b})`;
+                            return `rgb(255,${~~(255 * (1 - subRatio))},0)`;
                         }
                     };
                     Areas.forEach(area => {
-                        const areaId = area.id;
-                        const areaPeer = area.peer;
-                        const matchedRow = areaMap.get(areaId);
+                        const matchedRow = areaMap.get(area.id);
                         if (matchedRow) {
-                            const prefecture = normalizePrefecture(matchedRow[3]);
-                            const latitude = Number(matchedRow[5]);
-                            const longitude = Number(matchedRow[6]);
-                            const icon = L.divIcon({
-                                className: "peer-number-icon",
-                                html: `<div style="color:white; padding: 2px 5px; border-radius: 4px;">${areaPeer}</div>`
-                            });
-                            const marker = L.marker([latitude, longitude], { icon: icon }).addTo(MapSet);
-                            areaMarkers.set(areaId, marker);
-                            let found = false;
-                            PrefGeoJSON.eachLayer(layer => {
-                                if (layer.feature.properties.name === prefecture && layer.feature.properties.name !== "不明") {
-                                    layer.setStyle({
-                                        fillColor: getColorByPeer(areaPeer),
-                                        fillOpacity: 0.4,
-                                        color: "black"
-                                    });
-                                    found = true;
-                                }
-                            });
-                            if (!found) console.warn(`レイヤーが見つかりません: ${prefecture}`);
-                        } else {
-                            console.warn(`CSVにIDが見つかりません: ${areaId}`);
+                            const prefecture = normalizePrefecture(matchedRow[3]), latitude = +matchedRow[5], longitude = +matchedRow[6];
+                            areaMarkers.set(area.id, L.marker([latitude, longitude], {
+                                icon: L.divIcon({ className: "peer-number-icon", html: `<div style="color:white;padding:2px 5px;border-radius:4px">${area.peer}</div>` })
+                            }).addTo(MapSet));
+                            PrefGeoJSON.eachLayer(layer => layer.feature.properties.name === prefecture && prefecture !== "不明" &&
+                                layer.setStyle({ fillColor: getColorByPeer(area.peer), fillOpacity: 0.4, color: "black" }));
                         }
                     });
                 });
             } else if (P2PCode === 551) {
+                shindoMarkers.forEach(marker => MapSet.removeLayer(marker));
+                shindoMarkers.clear();
                 JSONLoad("Items/AreaData/PointSeismicIntensityLocation.json").then(PointSeismicIntensityLocation => {
-                    const EpLa = P2PJSON.earthquake.hypocenter.latitude;
-                    const Eplo = P2PJSON.earthquake.hypocenter.longitude;
-                    const epicenterIcon = L.icon({
-                        iconUrl: 'Items/Img/epicenter.png',
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 32],
-                        popupAnchor: [0, -32]
-                    });
-                    if (EpicenterMarker) {
-                        MapSet.removeLayer(EpicenterMarker);
-                    }
-                    EpicenterMarker = L.marker([EpLa, Eplo], { icon: epicenterIcon })
-                        .addTo(MapSet)
-                        .openPopup();
+                    const EpLa = P2PJSON.earthquake.hypocenter.latitude, Eplo = P2PJSON.earthquake.hypocenter.longitude;
+                    EpicenterMarker = L.marker([EpLa, Eplo], {
+                        icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
+                    }).addTo(MapSet).openPopup();
                     const locationMap = {};
-                    for (const key in PointSeismicIntensityLocation) {
-                        const item = PointSeismicIntensityLocation[key];
-                        locationMap[item.name] = item.location;
-                    }
-                    const AreaScale = P2PJSON.points;
-                    AreaScale.forEach(area => {
-                        const Addr = area.addr;
-                        const Scale = area.scale;
-                        const location = locationMap[Addr];
+                    for (const key in PointSeismicIntensityLocation) locationMap[PointSeismicIntensityLocation[key].name] = PointSeismicIntensityLocation[key].location;
+                    P2PJSON.points.forEach(area => {
+                        const location = locationMap[area.addr];
                         if (location) {
-                            const color = getShindoColorByName(geetShindo(Scale));
-                            const shindoIcon = L.divIcon({
-                                className: 'custom-shindo-icon',
-                                html: `<div style="
-    background-color: ${color};
-    color: #fff;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 10px;
-    border: 2px solid #333;
-">${geetShindo(Scale).replace("震度5弱以上（推定）", "?").replace("震度", "")}</div>
-`
-                            });
-                            L.marker(location, { icon: shindoIcon }).addTo(MapSet);
+                            const Scale = area.scale, shindo = geetShindo(Scale), color = getShindoColorByName(shindo);
+                            const marker = L.marker(location, {
+                                icon: L.divIcon({
+                                    className: 'custom-shindo-icon',
+                                    html: `<div style="background-color:${color};color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:10px;border:2px solid #333">${shindo.replace("震度5弱以上（推定）", "?").replace("震度", "")}</div>`
+                                })
+                            }).addTo(MapSet);
+                            shindoMarkers.set(area.addr, marker);
                         }
                     });
                 });
             } else if (P2PCode == 9611) {
                 CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
-                    const Area_Confidences = P2PJSON.area_confidences;
-                    const areaMap = new Map();
-                    if (Area_Confidences && Object.keys(Area_Confidences).length > 0) {
-                        Object.entries(P2PJSON.area_confidences).forEach(([areaId, info]) => {
-                            const row = areaMap.get(Number(areaId));
-                            if (!row) { console.warn(`CSVにIDが見つかりません: ${areaId}`); return; }
-                            const prefecture = normalizePrefecture(row[3]);
-                            const latitude = Number(row[5]);
-                            const longitude = Number(row[6]);
-                            console.log(prefecture)
+                    const Area_Confidences = P2PJSON.area_confidences, areaMap = new Map();
+                    EpspAreaData.forEach(row => areaMap.set(+row[1], row));
+                    JSONLoad("Items/AreaData/P2PSaibunn.json").then(P2PSaibun => {
+                        if (!Area_Confidences) return;
+                        Object.entries(Area_Confidences).forEach(([areaId, info]) => {
+                            const row = areaMap.get(+areaId);
+                            if (!row) return;
+                            const numID = +row[1], saRegion = P2PSaibun.find(p => p.NumID === numID)?.region;
+                            if (!saRegion) return;
+                            const count = info.count ?? 0, icon = L.divIcon({ html: `<div class="count-marker">${count}</div>`, className: '', iconSize: [40, 40], iconAnchor: [20, 20] });
+                            marker9611Map.has(areaId) ? marker9611Map.get(areaId).setIcon(icon) :
+                                marker9611Map.set(areaId, L.marker([+row[5], +row[6]], { icon }).addTo(MapSet));
+                            SaibunGeoJSON.eachLayer(layer => layer.feature.properties.name === saRegion &&
+                                layer.setStyle({ fillColor: "red", fillOpacity: 0.4, color: "red" }));
                         });
-                    }
+                    });
+                });
+            } else if (P2PCode == 556) {
+                JSONLoad("Items/AreaData/P2PSaibunn.json").then(() => {
+                    const EpLa = P2PJSON.earthquake.hypocenter.latitude, Eplo = P2PJSON.earthquake.hypocenter.longitude;
+                    EpicenterMarker = L.marker([EpLa, Eplo], {
+                        icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
+                    }).addTo(MapSet).openPopup();
+                    P2PJSON.areas.forEach(area => {
+                        const color = getShindoColorByName(geetShindo(area.scaleFrom));
+                        SaibunGeoJSON.eachLayer(layer => layer.feature.properties.name === area.name &&
+                            layer.setStyle({ fillColor: color, fillOpacity: 0.4, color }));
+                    });
                 });
             }
-
         }
-
-
 
         document.addEventListener("DOMContentLoaded", async () => {
             await MapInit();

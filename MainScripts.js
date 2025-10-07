@@ -1,19 +1,18 @@
 function TimeCahnge() {
+    const display = document.getElementById('time-display');
+    if (!display) return;  // なければ処理をスキップ
     let now = new Date();
     let timeStr = now.toLocaleTimeString('ja-JP');
     if (P2PSatus) {
-        document.getElementById('time-display').innerHTML = '現在時刻: ' + timeStr + "(サーバー接続中)";
-        document.getElementById('time-display').style.color = "green";
+        display.innerHTML = '現在時刻: ' + timeStr + "(サーバー接続中)";
+        display.style.color = "green";
     } else {
-        document.getElementById('time-display').innerHTML = '現在時刻: ' + timeStr + "(サーバー未接続)";
-        document.getElementById('time-display').style.color = "red";
+        display.innerHTML = '現在時刻: ' + timeStr + "(サーバー未接続)";
+        display.style.color = "red";
     }
 }
 
 document.addEventListener("DOMContentLoaded", async () => { setInterval(TimeCahnge, 1000); });
-
-
-
 
 function JSONLoad(filePath) {
     return fetch(filePath)
@@ -60,7 +59,7 @@ function P2PWebsocket() {
     P2Psocket = new WebSocket(P2PURL);
     P2Psocket.onopen = () => {
         console.log("P2PWebsocket接続成功");
-        P2PStatus = true;
+        P2PSatus = true;
     };
     P2Psocket.onmessage = (event) => {
         try {

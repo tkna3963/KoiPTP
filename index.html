@@ -92,7 +92,6 @@
                 dataSelect.id = 'data-select';
                 const defaultOption = L.DomUtil.create('option', '', dataSelect);
                 defaultOption.value = '';
-                defaultOption.text = '受信リスト';
                 dataSelect.style.flex = '1';
                 const textarea = L.DomUtil.create('textarea', 'custom-textarea', container);
                 textarea.id = 'custom-textarea';
@@ -114,6 +113,8 @@
                     const index = dataSelect.value;
                     if (index !== '') {
                         textarea.value = ConvertToTelop(P2PList[index]);
+                        P2PMap(null)
+                        P2PMap(P2PList[index])
                     }
                 });
                 window.addEventListener('resize', () => {
@@ -238,7 +239,7 @@
                     const areaData = P2PSaibun.find(item => item.NumID === Area561NumID);
                     const region = areaData.region;
                     EpicenterMarker = L.marker([areaData.latitude, areaData.longitude], {
-                        icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
+                        icon: L.icon({ iconUrl: 'Items/Img/bikkuri.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
                     }).addTo(MapSet).openPopup();
                     SaibunGeoJSON.eachLayer(layer => {
                         if (layer.feature.properties.name === region) {
@@ -253,6 +254,7 @@
             await MapInit();
             document.getElementById('KoisiText').textContent = "古明地こいし:こんにちは!\n"
             MapDisplay();
+            P2PHistory();
             P2PWebsocket();
         });
     </script>

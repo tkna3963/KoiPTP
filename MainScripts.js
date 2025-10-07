@@ -13,6 +13,8 @@ function TimeCahnge() {
 document.addEventListener("DOMContentLoaded", async () => { setInterval(TimeCahnge, 1000); });
 
 
+
+
 function JSONLoad(filePath) {
     return fetch(filePath)
         .then(response => {
@@ -53,40 +55,48 @@ let P2Psocket;
 let P2PList = [];
 let reconnectInterval = 3000;
 
+let messageCount = 0;
 function P2PWebsocket() {
     P2Psocket = new WebSocket(P2PURL);
     P2Psocket.onopen = () => {
         console.log("P2PWebsocket接続成功");
-        P2PSatus = true;
+        P2PStatus = true;
     };
-
     P2Psocket.onmessage = (event) => {
-        let data = JSON.parse(event.data);
-        P2PList.push(data);
-        let telop = ConvertToTelop(data);
-        P2PMap(null)
-        P2PMap(data);
-        const dataSelect = document.getElementById('data-select');
-        if (dataSelect) {
-            const option = document.createElement('option');
-            option.value = P2PList.length - 1;
-            option.text = `#${P2PList.length} ${data.code}情報`;
-            dataSelect.appendChild(option);
-            dataSelect.value = option.value;
+        try {
+            const data = JSON.parse(event.data);
+            P2PList.push(data);
+            const telop = ConvertToTelop(data);
+            P2PMap(null);
+            P2PMap(data);
+            const dataSelect = document.getElementById('data-select');
+            if (dataSelect) {
+                const option = document.createElement('option');
+                messageCount += 1;
+                option.value = messageCount;
+                option.text = `#${messageCount} ${data.code}情報`;
+                dataSelect.appendChild(option);
+                dataSelect.value = option.value;
+                dataSelect.dispatchEvent(new Event('change'));
+            }
+            
+            if (telop) {
+                const textarea = document.getElementById('custom-textarea');
+                if (textarea) {
+                    textarea.value = telop;
+                }
+            }
+        } catch (error) {
+            console.error("メッセージ処理エラー:", error);
         }
-        if (telop) {
-            let textarea = document.getElementById('custom-textarea');
-            textarea.value = telop;
-        }
-        dataSelect.dispatchEvent(new Event('change'));
     };
     P2Psocket.onerror = (error) => {
         console.error("P2PWebsocketエラー:", error);
-        P2PSatus = false;
+        P2PStatus = false;
     };
     P2Psocket.onclose = (event) => {
         console.log("P2PWebsocket接続終了。再接続を試みます...", event.reason);
-        P2PSatus = false;
+        P2PStatus = false;
         setTimeout(() => {
             console.log("P2PWebsocket再接続中...");
             P2PWebsocket();
@@ -94,7 +104,34 @@ function P2PWebsocket() {
     };
 }
 
-
+function P2PHistory() {
+    fetch("https://api.p2pquake.net/v2/history?limit=100")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const dataSelect = document.getElementById('data-select');
+            data.forEach((oneData, index) => {
+                P2PList.push(oneData);                
+                if (dataSelect) {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.text = `#-${data.length - index} ${oneData.code}情報`;
+                    dataSelect.appendChild(option);
+                }
+            });
+            if (dataSelect && data.length > 0) {
+                dataSelect.value = data.length - 1;
+                dataSelect.dispatchEvent(new Event('change'));
+            }
+        })
+        .catch(error => {
+            console.error("履歴取得エラー:", error);
+        });
+}
 function ConvertToTelop(json) {
     const koishiMessages = {
         551: "\n古明地こいし:地震情報が来たよ！\n",
@@ -193,7 +230,7 @@ function geetShindo(scale) {
 }
 
 function formatJMAQuakeToTelop(jmaQuake) {
-    const { _id, code, time: receivedTime, issue, earthquake, points, comments } = jmaQuake;
+    const {code, time: receivedTime, issue, earthquake, points, comments } = jmaQuake;
 
     // --- 発表情報 ---
     const issueSource = issue.source || "不明";
@@ -289,7 +326,7 @@ function formatJMAQuakeToTelop(jmaQuake) {
     // --- テロップ文章組み立て ---
 
     const telop =
-        `ID: ${_id}受信日時: ${receivedTime}
+        `受信日時: ${receivedTime}
 
 【発表情報】
 発表元: ${issueSource}
@@ -320,7 +357,7 @@ ${freeComment}` : ''}`;
 }
 
 function formatJMATsunamisToTelop(jmaTsunamis) {
-    const { _id, code, time: receivedTime, cancelled, issue, areas } = jmaTsunamis;
+    const {code, time: receivedTime, cancelled, issue, areas } = jmaTsunamis;
 
     // --- 発表情報 ---
     const issueSource = issue.source || "不明";
@@ -330,7 +367,6 @@ function formatJMATsunamisToTelop(jmaTsunamis) {
     // --- 津波予報解除 ---
     if (cancelled) {
         return `【津波予報解除】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -354,7 +390,6 @@ ID: ${_id}
     // areasが空なら「津波予報なし」
     if (!areas || areas.length === 0) {
         return `【津波予報】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -395,7 +430,6 @@ ID: ${_id}
     // --- テロップ組み立て ---
     const telop =
         `【津波予報】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -409,7 +443,7 @@ ${areasText}`;
 }
 
 function formatJMATsunamis5520ToTelop(jmaTsunamis) {
-    const { _id, code, time: receivedTime, cancelled, issue, areas } = jmaTsunamis;
+    const { code, time: receivedTime, cancelled, issue, areas } = jmaTsunamis;
 
     // --- 発表情報 ---
     const issueSource = issue.source || "不明";
@@ -419,7 +453,6 @@ function formatJMATsunamis5520ToTelop(jmaTsunamis) {
     // --- 津波予報解除 ---
     if (cancelled) {
         return `【津波予報解除】 (5520)
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -440,7 +473,6 @@ ID: ${_id}
 
     if (!areas || areas.length === 0) {
         return `【津波予報】 (5520)
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -464,7 +496,6 @@ ID: ${_id}
     // --- テロップ組み立て ---
     const telop =
         `【津波予報
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -478,12 +509,11 @@ ${areasText}`;
 }
 
 function formatUserquakeToTelop(userquake) {
-    const { _id, code, time: receivedTime, area } = userquake;
+    const {code, time: receivedTime, area } = userquake;
 
 
     return (
         `【地震感知情報】\n` +
-        `ID: ${_id}\n` +
         `情報コード: ${code}\n` +
         `受信日時: ${receivedTime}\n` +
         `地域: ${area}`
@@ -492,12 +522,11 @@ function formatUserquakeToTelop(userquake) {
 
 
 function formatAreapeersToTelop(areapeers) {
-    const { _id, code, time: receivedTime, areas } = areapeers;
+    const {code, time: receivedTime, areas } = areapeers;
 
     if (!areas || areas.length === 0) {
         return (
             `【P2P地震情報ネットワーク ピア地域分布】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -511,7 +540,6 @@ ID: ${_id}
 
     const telop =
         `【P2P地震情報ネットワーク ピア地域分布】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -522,11 +550,10 @@ ${areasText}`;
 }
 
 function formatEEWDetectionToTelop(eewDetection) {
-    const { _id, code, time: receivedTime, type } = eewDetection;
+    const {code, time: receivedTime, type } = eewDetection;
 
     return (
         `【緊急地震速報 発表検出】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 検出種類: ${type || "不明"}`
@@ -535,7 +562,6 @@ ID: ${_id}
 
 function formatEEWToTelop(eew) {
     const {
-        _id,
         code,
         time: receivedTime,
         test,
@@ -549,7 +575,6 @@ function formatEEWToTelop(eew) {
     if (cancelled) {
         return (
             `【緊急地震速報 取消】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 
@@ -619,7 +644,6 @@ ID: ${_id}
         : "予測震度情報はありません。";
     return (
         `【緊急地震速報】
-ID: ${_id}
 情報コード: ${code}
 受信日時: ${receivedTime}
 テスト速報: ${test ? "はい" : "いいえ"}
@@ -644,7 +668,6 @@ ${areasText}`
 
 function formatUserquakeEvaluationToTelop(evaluation) {
     const {
-        _id,
         code,
         time: evalTime,
         count,
@@ -686,7 +709,6 @@ function formatUserquakeEvaluationToTelop(evaluation) {
 
     return (
         `【地震感知情報評価結果】
-ID: ${_id}
 情報コード: ${code}
 評価日時: ${evalTime}
 検知件数: ${count}
@@ -699,7 +721,9 @@ ${areasText}`
     );
 }
 
+
 Testercount = 0;
+const testMassageCount = 0;
 function P2Ptester() {
     //test.jsonを読み込み
     fetch("Items/Debug/testp2p.json")

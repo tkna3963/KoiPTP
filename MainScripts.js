@@ -1,6 +1,6 @@
 function TimeCahnge() {
     const display = document.getElementById('time-display');
-    if (!display) return;  // なければ処理をスキップ
+    if (!display) return;
     let now = new Date();
     let timeStr = now.toLocaleTimeString('ja-JP');
     if (P2PSatus) {
@@ -50,7 +50,7 @@ function CSVLoad(filePath) {
 
 let P2PList = [];
 let P2PSatus = false;
-let P2Psocket;
+let P2PURL = "wss://api.p2pquake.net/v2/ws";
 let reconnectInterval = 3000;
 let totalMessageCount = 0;
 
@@ -72,7 +72,7 @@ function P2PWebsocket() {
             if (dataSelect) {
                 const option = document.createElement('option');
                 option.value = totalMessageCount - 1;
-                option.text = `Live #${totalMessageCount} ${data.code}情報`;
+                option.text = `#${totalMessageCount-100} ${data.code}情報`;
                 dataSelect.appendChild(option);
                 dataSelect.value = option.value;
                 dataSelect.dispatchEvent(new Event('change'));
@@ -101,6 +101,7 @@ function P2PWebsocket() {
     };
 }
 
+
 function P2PHistory() {
     fetch("https://api.p2pquake.net/v2/history?limit=100")
         .then(response => {
@@ -111,24 +112,20 @@ function P2PHistory() {
         })
         .then(data => {
             const dataSelect = document.getElementById('data-select');
-            // Add historical data, ensuring `totalMessageCount` is correctly maintained
+            const historyCount = data.length;
             data.forEach((oneData, index) => {
                 P2PList.push(oneData);
-                // The totalMessageCount will be P2PList.length after this loop
-                // For historical items, we can use their original index
                 if (dataSelect) {
                     const option = document.createElement('option');
-                    option.value = P2PList.length - 1; // Use the actual index in P2PList
-                    option.text = `Hist #${P2PList.length} ${oneData.code}情報`; // Differentiate historical messages
+                    option.value = P2PList.length - 1;
+                    const displayNum = historyCount - index;
+                    option.text = `#-${displayNum} ${oneData.code}情報`;
                     dataSelect.appendChild(option);
                 }
             });
-
-            // After loading history, initialize totalMessageCount to the current P2PList length
             totalMessageCount = P2PList.length;
-
             if (dataSelect && P2PList.length > 0) {
-                dataSelect.value = P2PList.length - 1; // Select the most recent historical item
+                dataSelect.value = P2PList.length - 1;
                 dataSelect.dispatchEvent(new Event('change'));
             }
         })
@@ -136,6 +133,7 @@ function P2PHistory() {
             console.error("履歴取得エラー:", error);
         });
 }
+
 function ConvertToTelop(json) {
     const koishiMessages = {
         551: "\n古明地こいし:地震情報が来たよ！\n",

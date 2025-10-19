@@ -149,34 +149,22 @@
                 CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
                     const Areas = P2PJSON.areas, areaMap = new Map();
                     EpspAreaData.slice(1).forEach(row => !isNaN(+row[1]) && areaMap.set(+row[1], row));
-                    const peers = Areas.map(area => area.peer), minPeer = Math.min(...peers), maxPeer = Math.max(...peers);
-                    const avgPeer = peers.reduce((sum, peer) => sum + peer, 0) / peers.length;
-                    const variance = peers.reduce((sum, peer) => sum + (peer - avgPeer) ** 2, 0) / peers.length;
-                    const stdDev = Math.sqrt(variance), coefficientOfVariation = stdDev / avgPeer;
-                    const getColorByPeer = peer => {
-                        let ratio = coefficientOfVariation < 0.3 || (maxPeer - minPeer) / avgPeer < 0.5 ?
-                            (peers.filter(p => p < peer).length / (peers.length - 1 || 1)) ** 2 :
-                            (peer - minPeer) / (maxPeer - minPeer || 1);
-                        if (ratio <= 0.33) {
-                            const subRatio = ratio / 0.33;
-                            return `rgb(0,${~~(128 * subRatio)},${~~(255 * (1 - subRatio))})`;
-                        } else if (ratio <= 0.66) {
-                            const subRatio = (ratio - 0.33) / 0.33;
-                            return `rgb(${~~(255 * subRatio)},${128 + ~~((255 - 128) * (1 - subRatio))},0)`;
-                        } else {
-                            const subRatio = (ratio - 0.66) / 0.34;
-                            return `rgb(255,${~~(255 * (1 - subRatio))},0)`;
-                        }
-                    };
                     Areas.forEach(area => {
                         const matchedRow = areaMap.get(area.id);
                         if (matchedRow) {
-                            const prefecture = normalizePrefecture(matchedRow[3]), latitude = +matchedRow[5], longitude = +matchedRow[6];
+                            const prefecture = normalizePrefecture(matchedRow[3]),
+                                latitude = +matchedRow[5],
+                                longitude = +matchedRow[6];
                             areaMarkers.set(area.id, L.marker([latitude, longitude], {
-                                icon: L.divIcon({ className: "peer-number-icon", html: `<div style="color:white;padding:2px 5px;border-radius:4px">${area.peer}</div>` })
+                                icon: L.divIcon({
+                                    className: "peer-number-icon",
+                                    html: `<div style="color:white;padding:2px 5px;border-radius:4px">${area.peer}</div>`
+                                })
                             }).addTo(MapSet));
-                            PrefGeoJSON.eachLayer(layer => layer.feature.properties.name === prefecture && prefecture !== "不明" &&
-                                layer.setStyle({ fillColor: getColorByPeer(area.peer), fillOpacity: 0.4, color: "black" }));
+                            PrefGeoJSON.eachLayer(layer =>
+                                layer.feature.properties.name === prefecture && prefecture !== "不明" &&
+                                layer.setStyle({ fillColor: "rgb(0,200,255)", fillOpacity: 0.4, color: "black" })
+                            );
                         }
                     });
                 });

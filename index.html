@@ -3,250 +3,773 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOIPTP</title>
-    <link rel="icon" href="Items/Img/G2VPXo2bMAIf10q.png">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-    <link rel="stylesheet" href="Styles.css">
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="MainScripts.js" defer></script>
+    <title>気象庁 XML フィードビューア</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: monospace;
+            font-size: 13px;
+            background: #f5f5f5;
+            color: #222;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background: #fff;
+            color: #222;
+            padding: 5px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header b {
+            font-size: 13px;
+        }
+
+        header small {
+            color: #aaa;
+            font-size: 10px;
+        }
+
+        .statusbar-top {
+            background: #fafafa;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 3px 10px;
+            font-size: 10px;
+            color: #888;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 3px;
+            vertical-align: middle;
+        }
+
+        .dot.ok {
+            background: #3a3;
+        }
+
+        .dot.loading {
+            background: #c80;
+            animation: blink .6s infinite;
+        }
+
+        .dot.err {
+            background: #c33;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .2
+            }
+        }
+
+        .toolbar {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .toolbar input {
+            flex: 1;
+            background: #fff;
+            color: #222;
+            border: 1px solid #ccc;
+            padding: 3px 7px;
+            font-family: monospace;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .toolbar input:focus {
+            border-color: #66a;
+        }
+
+        select {
+            background: #fff;
+            color: #222;
+            border: 1px solid #ccc;
+            padding: 2px 4px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .select-label {
+            font-size: 10px;
+            color: #aaa;
+            white-space: nowrap;
+        }
+
+        .btn {
+            background: #f0f0f0;
+            color: #444;
+            border: 1px solid #ccc;
+            padding: 2px 9px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 11px;
+            border-radius: 2px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #e4e4e4;
+        }
+
+        .btn.active {
+            background: #2255bb;
+            border-color: #1a44aa;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 左: エントリ一覧 */
+        .sidebar {
+            width: 25%;
+            min-width: 240px;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-hdr {
+            background: #f8f8f8;
+            color: #666;
+            padding: 4px 8px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .entry-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .entry-row {
+            padding: 6px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .entry-row:hover {
+            background: #f0f4ff;
+        }
+
+        .entry-row.active {
+            background: #dce8fb;
+            border-left: 3px solid #2255bb;
+            padding-left: 5px;
+        }
+
+        .et {
+            font-size: 12px;
+            color: #111;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .em {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .rel {
+            color: #bbb;
+        }
+
+        .sidebar-msg {
+            padding: 20px 10px;
+            color: #bbb;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* 右: 詳細 */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-hdr {
+            background: #f8f8f8;
+            color: #666;
+            padding: 4px 8px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .main-hdr .url {
+            flex: 1;
+            font-size: 10px;
+            color: #bbb;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vtoggle {
+            display: flex;
+        }
+
+        .vtoggle .btn {
+            border-radius: 0;
+            border-right-width: 0;
+        }
+
+        .vtoggle .btn:last-child {
+            border-right-width: 1px;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .vtoggle .btn:first-child {
+            border-radius: 2px 0 0 2px;
+        }
+
+        .content {
+            flex: 1;
+            overflow: auto;
+            background: #fff;
+        }
+
+        .ph {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+        }
+
+        .ld {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+        }
+
+        .eb {
+            padding: 12px;
+            color: #c33;
+            font-size: 11px;
+            white-space: pre-wrap;
+        }
+
+        /* 詳細パネル */
+        #panel-info {
+            padding: 12px;
+            display: none;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .info-table {
+            font-size: 11px;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .info-table td {
+            padding: 3px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+            color: #333;
+        }
+
+        .info-table td:first-child {
+            color: #aaa;
+            width: 90px;
+            white-space: nowrap;
+        }
+
+        .xml-section-title {
+            font-size: 10px;
+            color: #aaa;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .xml-kv {
+            font-size: 11px;
+            background: #fafafa;
+            padding: 6px;
+            border: 1px solid #e8e8e8;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .xml-kv table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .xml-kv td {
+            padding: 2px 6px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+
+        .xml-kv td:first-child {
+            color: #aaa;
+            width: 200px;
+            white-space: nowrap;
+            font-size: 10px;
+        }
+
+        .xml-kv td:last-child {
+            color: #333;
+            word-break: break-all;
+        }
+
+        /* RAW XML */
+        #panel-raw {
+            padding: 8px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 11px;
+            line-height: 1.6;
+            display: none;
+            color: #222;
+            background: #fff;
+        }
+
+        /* XML syntax highlight (light) */
+        .xt {
+            color: #0000cc;
+        }
+
+        .xa {
+            color: #7d3c00;
+        }
+
+        .xv {
+            color: #008000;
+        }
+
+        .xc {
+            color: #999;
+        }
+
+        .statusbar {
+            background: #f8f8f8;
+            color: #bbb;
+            padding: 2px 10px;
+            font-size: 10px;
+            display: flex;
+            gap: 14px;
+            flex-shrink: 0;
+            border-top: 1px solid #eee;
+        }
+
+        #NowTime{
+            font-size: 11px;
+            color: #666;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="container">
-        <div id="LeafletMap"></div>
-        <div id="rightContainer">
-            <img id="BackImg" src="Items/Img/baclgroundimg.jpg" alt="背景">
-            <img id="KoisiImg" src="Items/Koisis/koisiwara.png" alt="こいし">
-            <textarea id="KoisiText" readonly></textarea>
-        </div>
+
+    <header>
+        <b>気象庁 XML フィードビューア</b>
+        <small>高頻度: 毎分 / 長期: 30分ごと 自動更新</small>
+        <span id="NowTime"></span>
+    </header>
+
+    <div class="statusbar-top" id="feed-status-bar">
+        <span id="fst-regular"> <span class="dot loading"></span>定時</span>
+        <span id="fst-extra"> <span class="dot loading"></span>随時</span>
+        <span id="fst-eqvol"> <span class="dot loading"></span>地震火山</span>
+        <span id="fst-other"> <span class="dot loading"></span>その他</span>
+        <span style="color:#ddd">|</span>
+        <span id="fst-regular_l"><span class="dot loading"></span>定時(長)</span>
+        <span id="fst-extra_l"> <span class="dot loading"></span>随時(長)</span>
+        <span id="fst-eqvol_l"> <span class="dot loading"></span>地震火山(長)</span>
+        <span id="fst-other_l"> <span class="dot loading"></span>その他(長)</span>
+        <span style="margin-left:auto" id="next-refresh">次回更新: —</span>
     </div>
 
+    <div class="toolbar">
+        <input id="filter-input" type="text" placeholder="タイトルで絞り込み..." oninput="filterEntries()">
+        <button class="btn" onclick="forceRefreshAll()">今すぐ更新</button>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-hdr">
+                <span id="sidebar-title">エントリ一覧</span>
+                <span id="entry-count"></span>
+            </div>
+            <div class="entry-list" id="entry-list">
+                <div class="sidebar-msg">初期取得中...</div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="main-hdr">
+                <div class="url" id="url-disp">—</div>
+                <div class="vtoggle">
+                    <button class="btn active" id="btn-raw" onclick="setView('raw')">XML</button>
+                    <button class="btn" id="btn-info" onclick="setView('info')">詳細</button>
+                </div>
+                <button class="btn" onclick="openExternal()">↗</button>
+            </div>
+            <div class="content" id="content">
+                <div class="ph" id="ph">← エントリを選択</div>
+                <div class="ld" id="ld" style="display:none">読み込み中...</div>
+                <div class="eb" id="eb" style="display:none"></div>
+                <div id="panel-raw"></div>
+                <div id="panel-info"></div>
+            </div>
+            <div class="statusbar">
+                <span id="st-total">エントリ: —</span>
+                <span id="st-last">最終更新: —</span>
+                <span id="st-sz"></span>
+            </div>
+        </div>
+    </div>
+    <div id="NowTime"></div>
+
     <script>
-        let MapSet;
-        let PrefArea;
-        let SaibunArea;
-        let TsunamiArea;
-        let PrefGeoJSON;
-        let SaibunGeoJSON;
-        let TsunamiGeoJSON;
-        let EpspAreaData = null;
-        const areaMarkers = new Map();
-        let EpicenterMarker;
-        const marker9611Map = new Map();
-        let shindoMarkers = new Map();
+        const FEEDS = [
+            { key: 'regular', url: 'https://www.data.jma.go.jp/developer/xml/feed/regular.xml', interval: 60, label: '定時' },
+            { key: 'extra', url: 'https://www.data.jma.go.jp/developer/xml/feed/extra.xml', interval: 60, label: '随時' },
+            { key: 'eqvol', url: 'https://www.data.jma.go.jp/developer/xml/feed/eqvol.xml', interval: 60, label: '地震火山' },
+            { key: 'other', url: 'https://www.data.jma.go.jp/developer/xml/feed/other.xml', interval: 60, label: 'その他' },
+            { key: 'regular_l', url: 'https://www.data.jma.go.jp/developer/xml/feed/regular_l.xml', interval: 1800, label: '定時(長)' },
+            { key: 'extra_l', url: 'https://www.data.jma.go.jp/developer/xml/feed/extra_l.xml', interval: 1800, label: '随時(長)' },
+            { key: 'eqvol_l', url: 'https://www.data.jma.go.jp/developer/xml/feed/eqvol_l.xml', interval: 1800, label: '地震火山(長)' },
+            { key: 'other_l', url: 'https://www.data.jma.go.jp/developer/xml/feed/other_l.xml', interval: 1800, label: 'その他(長)' },
+        ];
 
-        async function MapInit() {
-            MapSet = L.map('LeafletMap', { zoomControl: false, attributionControl: false }).setView([35.681236, 139.767125], 5);
-            L.tileLayer('Items/Img/MapImage.png').addTo(MapSet);
+        const seenIds = new Set();
+        let allEntries = [];
+        let currentEntryUrl = null;
+        let currentView = 'raw';   // デフォルト RAW
+        let contentReady = false;
+        let nextRefreshAt = {};
 
-            PrefArea = await fetch("Items/AreaData/Pref.geojson").then(res => res.json());
-            SaibunArea = await fetch("Items/AreaData/Saibun.geojson").then(res => res.json());
-            TsunamiArea = await fetch("Items/AreaData/Tsunami.geojson").then(res => res.json());
-
-            PrefGeoJSON = L.geoJSON(PrefArea, { style: { color: "green", fillOpacity: 0.0 } }).addTo(MapSet);
-            SaibunGeoJSON = L.geoJSON(SaibunArea, { style: { color: "red", fillOpacity: 0.0 } }).addTo(MapSet);
-            TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue", fillOpacity: 0.0 } }).addTo(MapSet);
-        }
-
-        function MapDisplay() {
-            const TimeDisplay = L.control({ position: 'bottomright' });
-            TimeDisplay.onAdd = function () {
-                let el = L.DomUtil.create('span', 'time-display');
-                el.id = 'time-display';
-                el.innerHTML = '現在時刻: --:--:--';
-                el.style.background = 'rgba(255, 255, 255, 0.9)';
-                el.style.border = '1px solid #aaa';
-                el.style.borderRadius = '8px';
-                el.style.padding = '6px 10px';
-                el.style.fontSize = '18px';
-                el.style.fontFamily = '"Segoe UI", sans-serif';
-                el.style.color = '#333';
-                el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-                return el;
-            };
-            TimeDisplay.addTo(MapSet);
-            const TextAreaControl = L.control({ position: 'topleft' });
-            TextAreaControl.onAdd = function () {
-                const container = L.DomUtil.create('div', 'textarea-container');
-                container.style.display = 'flex';
-                container.style.flexDirection = 'column';
-                container.style.alignItems = 'flex-start';
-                container.style.background = 'rgba(255, 255, 255, 0.2)';
-                container.style.padding = '6px';
-                container.style.borderRadius = '8px';
-                container.style.border = '1px solid #aaa';
-                container.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
-                const topRow = L.DomUtil.create('div', 'top-row', container);
-                topRow.style.display = 'flex';
-                topRow.style.gap = '6px';
-                topRow.style.marginBottom = '6px';
-                const select = L.DomUtil.create('select', 'textarea-toggle', topRow);
-                const optionShow = L.DomUtil.create('option', '', select);
-                optionShow.value = 'show';
-                optionShow.text = '表示';
-                const optionHide = L.DomUtil.create('option', '', select);
-                optionHide.value = 'hide';
-                optionHide.text = '非表示';
-                const dataSelect = L.DomUtil.create('select', 'data-select', topRow);
-                dataSelect.id = 'data-select';
-                const defaultOption = L.DomUtil.create('option', '', dataSelect);
-                defaultOption.value = '';
-                dataSelect.style.flex = '1';
-                const textarea = L.DomUtil.create('textarea', 'custom-textarea', container);
-                textarea.id = 'custom-textarea';
-                textarea.style.width = Math.floor(window.innerWidth * 0.15) + 'px';
-                textarea.style.height = Math.floor(window.innerHeight * 0.4) + 'px';
-                textarea.style.background = 'rgba(200, 200, 200, 0.1)';
-                textarea.style.border = '1px solid #aaa';
-                textarea.style.borderRadius = '8px';
-                textarea.style.padding = '6px';
-                textarea.style.fontSize = '14px';
-                textarea.style.fontFamily = '"Segoe UI", sans-serif';
-                textarea.style.color = '#333';
-                textarea.style.resize = 'none';
-                textarea.readOnly = true;
-                select.addEventListener('change', () => {
-                    textarea.style.display = select.value === 'show' ? 'block' : 'none';
+        window.addEventListener('DOMContentLoaded', () => {
+            FEEDS.forEach(f => fetchFeed(f));
+            FEEDS.forEach(f => {
+                nextRefreshAt[f.key] = Date.now() + f.interval * 1000;
+                setInterval(() => {
+                    fetchFeed(f);
+                    nextRefreshAt[f.key] = Date.now() + f.interval * 1000;
+                }, f.interval * 1000);
+            });
+            setInterval(tickCountdown, 1000);
+            setInterval(() => {
+                document.querySelectorAll('.rel[data-ts]').forEach(el => {
+                    const ts = el.dataset.ts;
+                    if (ts) el.textContent = relTime(ts);
                 });
-                dataSelect.addEventListener('change', () => {
-                    const index = dataSelect.value;
-                    if (index !== '') {
-                        textarea.value = ConvertToTelop(P2PList[index]);
-                        P2PMap(null)
-                        P2PMap(P2PList[index])
-                    }
-                });
-                window.addEventListener('resize', () => {
-                    textarea.style.width = Math.floor(window.innerWidth * 0.15) + 'px';
-                    textarea.style.height = Math.floor(window.innerHeight * 0.4) + 'px';
-                });
-                return container;
-            };
-            TextAreaControl.addTo(MapSet);
-        }
-
-        function P2PMap(P2PJSON) {
-            areaMarkers.forEach(marker => MapSet.removeLayer(marker));
-            areaMarkers.clear();
-            if (EpicenterMarker) MapSet.removeLayer(EpicenterMarker), EpicenterMarker = null;
-            PrefGeoJSON.eachLayer(layer => layer.setStyle({ fillColor: "#FFF", fillOpacity: 0.1, color: "green" }));
-            if (P2PJSON === null) {
-                areaMarkers.forEach(marker => MapSet.removeLayer(marker));
-                areaMarkers.clear();
-                marker9611Map.forEach(marker => MapSet.removeLayer(marker));
-                marker9611Map.clear();
-                shindoMarkers.forEach(marker => MapSet.removeLayer(marker));
-                shindoMarkers.clear();
-                if (EpicenterMarker) MapSet.removeLayer(EpicenterMarker), EpicenterMarker = null;
-                PrefGeoJSON.eachLayer(layer => layer.setStyle({ fillColor: "#FFF", fillOpacity: 0.1, color: "green" }));
-                SaibunGeoJSON.eachLayer(layer => layer.setStyle({ fillColor: "#FFF", fillOpacity: 0.1, color: "green" }));
-                return;
-            }
-            const P2PCode = P2PJSON.code;
-            const normalizePrefecture = name => !name ? "不明" : name === "東京" ? "東京都" : name === "京都" ? "京都府" : name === "大阪" ? "大阪府" : name === "北海道" ? "北海道" : name + "県";
-            if (P2PCode == 555) {
-                CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
-                    const Areas = P2PJSON.areas, areaMap = new Map();
-                    EpspAreaData.slice(1).forEach(row => !isNaN(+row[1]) && areaMap.set(+row[1], row));
-                    Areas.forEach(area => {
-                        const matchedRow = areaMap.get(area.id);
-                        if (matchedRow) {
-                            const prefecture = normalizePrefecture(matchedRow[3]),
-                                latitude = +matchedRow[5],
-                                longitude = +matchedRow[6];
-                            areaMarkers.set(area.id, L.marker([latitude, longitude], {
-                                icon: L.divIcon({
-                                    className: "peer-number-icon",
-                                    html: `<div style="color:white;padding:2px 5px;border-radius:4px">${area.peer}</div>`
-                                })
-                            }).addTo(MapSet));
-                            PrefGeoJSON.eachLayer(layer =>
-                                layer.feature.properties.name === prefecture && prefecture !== "不明" &&
-                                layer.setStyle({ fillColor: "rgb(0,200,255)", fillOpacity: 0.4, color: "black" })
-                            );
-                        }
-                    });
-                });
-            } else if (P2PCode === 551) {
-                shindoMarkers.forEach(marker => MapSet.removeLayer(marker));
-                shindoMarkers.clear();
-                JSONLoad("Items/AreaData/PointSeismicIntensityLocation.json").then(PointSeismicIntensityLocation => {
-                    const EpLa = P2PJSON.earthquake.hypocenter.latitude, Eplo = P2PJSON.earthquake.hypocenter.longitude;
-                    EpicenterMarker = L.marker([EpLa, Eplo], {
-                        icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
-                    }).addTo(MapSet).openPopup();
-                    const locationMap = {};
-                    for (const key in PointSeismicIntensityLocation) locationMap[PointSeismicIntensityLocation[key].name] = PointSeismicIntensityLocation[key].location;
-                    P2PJSON.points.forEach(area => {
-                        const location = locationMap[area.addr];
-                        if (location) {
-                            const Scale = area.scale, shindo = geetShindo(Scale), color = getShindoColorByName(shindo);
-                            const marker = L.marker(location, {
-                                icon: L.divIcon({
-                                    className: 'custom-shindo-icon',
-                                    html: `<div style="background-color:${color};color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:10px;border:2px solid #333">${shindo.replace("震度5弱以上（推定）", "?").replace("震度", "")}</div>`
-                                })
-                            }).addTo(MapSet);
-                            shindoMarkers.set(area.addr, marker);
-                        }
-                    });
-                });
-            } else if (P2PCode == 9611) {
-                CSVLoad("Items/AreaData/epsp-area.csv").then(EpspAreaData => {
-                    const Area_Confidences = P2PJSON.area_confidences, areaMap = new Map();
-                    EpspAreaData.forEach(row => areaMap.set(+row[1], row));
-                    JSONLoad("Items/AreaData/P2PSaibunn.json").then(P2PSaibun => {
-                        if (!Area_Confidences) return;
-                        Object.entries(Area_Confidences).forEach(([areaId, info]) => {
-                            const row = areaMap.get(+areaId);
-                            if (!row) return;
-                            const numID = +row[1], saRegion = P2PSaibun.find(p => p.NumID === numID)?.region;
-                            if (!saRegion) return;
-                            const count = info.count ?? 0, icon = L.divIcon({ html: `<div class="count-marker">${count}</div>`, className: '', iconSize: [40, 40], iconAnchor: [20, 20] });
-                            marker9611Map.has(areaId) ? marker9611Map.get(areaId).setIcon(icon) :
-                                marker9611Map.set(areaId, L.marker([+row[5], +row[6]], { icon }).addTo(MapSet));
-                            SaibunGeoJSON.eachLayer(layer => layer.feature.properties.name === saRegion &&
-                                layer.setStyle({ fillColor: "red", fillOpacity: 0.4, color: "red" }));
-                        });
-                    });
-                });
-            } else if (P2PCode == 556) {
-                const EpLa = P2PJSON.earthquake.hypocenter.latitude, Eplo = P2PJSON.earthquake.hypocenter.longitude;
-                EpicenterMarker = L.marker([EpLa, Eplo], {
-                    icon: L.icon({ iconUrl: 'Items/Img/epicenter.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
-                }).addTo(MapSet).openPopup();
-                P2PJSON.areas.forEach(area => {
-                    const color = getShindoColorByName(geetShindo(area.scaleFrom));
-                    SaibunGeoJSON.eachLayer(layer => layer.feature.properties.name === area.name &&
-                        layer.setStyle({ fillColor: color, fillOpacity: 0.4, color }));
-                });
-            } else if (P2PCode == 561) {
-                JSONLoad("Items/AreaData/P2PSaibunn.json").then(P2PSaibun => {
-                    const Area561NumID = P2PJSON.area;
-                    const areaData = P2PSaibun.find(item => item.NumID === Area561NumID);
-                    const region = areaData.region;
-                    EpicenterMarker = L.marker([areaData.latitude, areaData.longitude], {
-                        icon: L.icon({ iconUrl: 'Items/Img/bikkuri.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] })
-                    }).addTo(MapSet).openPopup();
-                    SaibunGeoJSON.eachLayer(layer => {
-                        if (layer.feature.properties.name === region) {
-                            layer.setStyle({ fillColor: "blue", fillOpacity: 0.4, color: "blue" });
-                        }
-                    });
-                })
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", async () => {
-            await MapInit();
-            document.getElementById('KoisiText').textContent = "古明地こいし:こんにちは!\n"
-            MapDisplay();
-            P2PHistory();
-            P2PWebsocket();
+            }, 1000);
         });
-    </script>
 
+        function tickCountdown() {
+            const nextKey = Object.keys(nextRefreshAt).reduce((a, b) =>
+                nextRefreshAt[a] < nextRefreshAt[b] ? a : b);
+            const sec = Math.max(0, Math.round((nextRefreshAt[nextKey] - Date.now()) / 1000));
+            const f = FEEDS.find(f => f.key === nextKey);
+            document.getElementById('next-refresh').textContent = `次回更新: ${f.label} あと${sec}秒`;
+        }
+
+        function forceRefreshAll() {
+            FEEDS.forEach(f => { fetchFeed(f); nextRefreshAt[f.key] = Date.now() + f.interval * 1000; });
+        }
+
+        // ===== フィード取得 =====
+        function fetchFeed(f) {
+            setDot(f.key, 'loading');
+            console.log(`[JMA] fetch: ${f.url}`);
+            fetch(f.url)
+                .then(r => { console.log(`[JMA] ${f.key} ${r.status}`); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
+                .then(text => { console.log(`[JMA] ${f.key} 成功 ${(text.length / 1024).toFixed(1)}KB`); setDot(f.key, 'ok'); mergeFeed(text, f); })
+                .catch(err => { console.error(`[JMA] ${f.key} エラー:`, err); setDot(f.key, 'err'); });
+        }
+
+        function setDot(key, state) {
+            const el = document.getElementById(`fst-${key}`);
+            if (el) el.querySelector('.dot').className = `dot ${state}`;
+        }
+
+        // ===== パース・マージ =====
+        function mergeFeed(text, f) {
+            const doc = new DOMParser().parseFromString(text, 'application/xml');
+            console.log(`[JMA] ${f.key} パース:`, doc);
+            if (doc.querySelector('parsererror')) { console.error(`[JMA] ${f.key} パースエラー`); return; }
+
+            const entries = Array.from(doc.getElementsByTagNameNS('*', 'entry'));
+            let newCount = 0;
+
+            entries.forEach(e => {
+                const id = getT(e, 'id');
+                if (!id || seenIds.has(id)) return;
+                seenIds.add(id);
+                newCount++;
+
+                const title = getT(e, 'title');
+                const updated = getT(e, 'updated');
+                const published = getT(e, 'published');
+                const author = getT(e, 'name') || getT(e, 'author');
+
+                let link = '';
+                for (const l of e.getElementsByTagNameNS('*', 'link')) {
+                    const rel = l.getAttribute('rel') || 'alternate';
+                    if (!link || rel === 'alternate') link = l.getAttribute('href') || '';
+                    if (rel === 'alternate') break;
+                }
+                allEntries.push({ id, title, updated, published, author, link, feedKey: f.key });
+            });
+
+            if (newCount > 0) {
+                console.log(`[JMA] ${f.key} 新規${newCount}件 計${allEntries.length}件`);
+                allEntries.sort((a, b) => {
+                    const ta = new Date(a.published || a.updated || 0).getTime();
+                    const tb = new Date(b.published || b.updated || 0).getTime();
+                    return tb - ta;
+                });
+                document.getElementById('st-total').textContent = `エントリ: ${allEntries.length}件`;
+                document.getElementById('st-last').textContent = `最終更新: ${new Date().toLocaleTimeString('ja-JP')}`;
+                renderList();
+            }
+        }
+
+        // ===== 一覧描画 =====
+        function renderList() {
+            const q = document.getElementById('filter-input').value;
+
+            const filtered = allEntries.filter(e => {
+                if (q && !(e.title || '').includes(q)) return false;
+                return true;
+            });
+
+            document.getElementById('entry-count').textContent =
+                filtered.length === allEntries.length ? `${allEntries.length}件` : `${filtered.length}/${allEntries.length}件`;
+
+            const list = document.getElementById('entry-list');
+            if (!filtered.length) { list.innerHTML = '<div class="sidebar-msg">エントリなし</div>'; return; }
+
+            const scrollTop = list.scrollTop;
+            list.innerHTML = filtered.map(e => {
+                const date = e.published || e.updated;
+                const active = e.link === currentEntryUrl;
+                return `<div class="entry-row${active ? ' active' : ''}" onclick="selectEntry(this,'${esc(e.link)}')">
+      <div class="et">${esc(e.title || '(タイトルなし)')}</div>
+      <div class="em">
+        <span>${date ? fmt(date) : '-'} <span class="rel" data-ts="${date || ''}">${date ? relTime(date) : ''}</span></span>
+        ${e.author ? `<span>${esc(e.author)}</span>` : ''}
+      </div>
+    </div>`;
+            }).join('');
+            list.scrollTop = scrollTop;
+
+            // 初回は最初のエントリを自動選択して表示（「エントリを選択」プレースホルダを省く）
+            if (!currentEntryUrl && filtered.length > 0) {
+                const firstRow = list.querySelector('.entry-row');
+                if (firstRow) {
+                    selectEntry(firstRow, filtered[0].link);
+                }
+            }
+        }
+
+        function filterEntries() { renderList(); }
+
+
+        // ===== エントリ選択 =====
+        function selectEntry(row, link) {
+            document.querySelectorAll('.entry-row').forEach(r => r.classList.remove('active'));
+            row.classList.add('active');
+            if (!link) { showRight('err', 'リンクURLがありません'); return; }
+
+            currentEntryUrl = link;
+            contentReady = false;
+            document.getElementById('url-disp').textContent = link;
+            showRight('ld');
+
+            console.log('[JMA] エントリXML取得:', link);
+            fetch(link)
+                .then(r => { console.log('[JMA] エントリ:', r.status, r.statusText); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
+                .then(text => {
+                    console.log('[JMA] エントリXML成功:', (text.length / 1024).toFixed(1), 'KB');
+                    document.getElementById('st-sz').textContent = `${(text.length / 1024).toFixed(1)} KB`;
+                    renderDetail(text);
+                })
+                .catch(err => { console.error('[JMA] エントリエラー:', err); showRight('err', `${err.message}\n\n${link}`); });
+        }
+
+        function openExternal() { if (currentEntryUrl) window.open(currentEntryUrl, '_blank'); }
+
+        // ===== 詳細描画 =====
+        function renderDetail(text) {
+            const doc = new DOMParser().parseFromString(text, 'application/xml');
+            console.log('[JMA] エントリパース:', doc);
+
+            // RAW
+            // 全フィールド走査
+            const kvPairs = [];
+            function walk(el, path) {
+                const tag = el.localName;
+                if (!tag) { for (const c of el.childNodes) walk(c, path); return; }
+                const fullPath = path ? `${path} > ${tag}` : tag;
+                const directText = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join('').trim();
+                const attrs = [...(el.attributes || [])].map(a => `${a.name}="${a.value}"`).join(' ');
+                if (directText) kvPairs.push([fullPath + (attrs ? ` [${attrs}]` : ''), directText]);
+                for (const c of el.childNodes) if (c.nodeType === 1) walk(c, fullPath);
+            }
+            walk(doc.documentElement, '');
+
+            const entry = allEntries.find(e => e.link === currentEntryUrl) || {};
+            const metaRows = [
+                ['タイトル', entry.title],
+                ['発表時刻', entry.published ? fmt(entry.published) : '—'],
+                ['更新時刻', entry.updated ? fmt(entry.updated) : '—'],
+                ['発表機関', entry.author || '—'],
+                ['URL', currentEntryUrl],
+            ];
+
+            document.getElementById('panel-info').innerHTML = `
+    <div class="info-title">${esc(entry.title || '')}</div>
+    <table class="info-table">
+      ${metaRows.map(([l, v]) => `<tr><td>${l}</td><td>${esc(v || '')}</td></tr>`).join('')}
+    </table>`;
+
+            document.getElementById('panel-raw').innerHTML = `
+    <div class="xml-section-title">XML 全フィールド</div>
+    <div class="xml-kv">
+      <table>${kvPairs.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
+    </div>
+    <div class="xml-section-title">生XML（RAW）</div>
+    <div>${hlXml(esc(text))}</div>`;
+
+            contentReady = true;
+            showRight('content');
+        }
+
+        // ===== 表示制御 =====
+        function showRight(state, msg) {
+            document.getElementById('ph').style.display = state === 'ph' ? 'flex' : 'none';
+            document.getElementById('ld').style.display = state === 'ld' ? 'flex' : 'none';
+            document.getElementById('eb').style.display = state === 'err' ? 'block' : 'none';
+            document.getElementById('panel-raw').style.display = (state === 'content' && currentView === 'raw') ? 'block' : 'none';
+            document.getElementById('panel-info').style.display = (state === 'content' && currentView === 'info') ? 'block' : 'none';
+            if (state === 'err' && msg) document.getElementById('eb').textContent = msg;
+        }
+
+        function setView(v) {
+            currentView = v;
+            document.getElementById('btn-raw').classList.toggle('active', v === 'raw');
+            document.getElementById('btn-info').classList.toggle('active', v === 'info');
+            if (contentReady) showRight('content');
+        }
+
+        // ===== ユーティリティ =====
+        function getT(el, tag) {
+            if (!el) return '';
+            const n = el.getElementsByTagNameNS('*', tag);
+            return n.length ? (n[0].textContent || '').trim() : '';
+        }
+        function fmt(s) {
+            try { const d = new Date(s); return isNaN(d) ? s : d.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }); } catch { return s; }
+        }
+        function relTime(s) {
+            try {
+                const sec = Math.floor((Date.now() - new Date(s).getTime()) / 1000);
+                if (sec < 0) return '';
+                if (sec < 60) return `(${sec}秒前)`;
+                if (sec < 3600) return `(${Math.floor(sec / 60)}分${sec % 60 ? sec % 60 + '秒' : ''}前)`;
+                if (sec < 86400) return `(${Math.floor(sec / 3600)}時間${Math.floor((sec % 3600) / 60) ? Math.floor((sec % 3600) / 60) + '分' : ''}前)`;
+                return `(${Math.floor(sec / 86400)}日前)`;
+            } catch { return ''; }
+        }
+        function esc(s) {
+            return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function hlXml(e) {
+            return e
+                .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="xc">$1</span>')
+                .replace(/(&lt;\/?[\w:\-]+)((?:\s+[\w:\-]+=&quot;[^"]*?&quot;)*)(\/?)(&gt;)/g,
+                    (_, tag, attrs, sl, end) => `<span class="xt">${tag}${attrs.replace(/([\w:\-]+)=(&quot;[^"]*?&quot;)/g, '<span class="xa">$1</span>=<span class="xv">$2</span>')}${sl}${end}</span>`)
+                .replace(/(&lt;\/?[\w:\-]+\s*\/?\s*&gt;)/g, '<span class="xt">$1</span>');
+        }
+    </script>
+    <script>
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function nowtimechange(){
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = pad(date.getMonth() + 1);
+            const day = pad(date.getDate());
+            const hour = pad(date.getHours());
+            const minute = pad(date.getMinutes());
+            const second = pad(date.getSeconds());
+            document.getElementById('NowTime').textContent =
+                `${year}年${month}月${day}日 ${hour}:${minute}`;
+        }
+        nowtimechange();
+        setInterval(nowtimechange, 1000);
+    </script>
 </body>
 
 </html>
